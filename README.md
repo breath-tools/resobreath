@@ -143,4 +143,3 @@ This project bundles the following third-party software:
 * Component: `pouchdb.min.js`
 * Project: PouchDB
 * License: Apache License 2.0
-* Copyright: 2012-2024 Dale Harvey and the PouchDB teams
