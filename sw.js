@@ -5,7 +5,7 @@
    - Offline fallback for navigation to cached index.html
 */
 
-const CACHE_VERSION = 1; // Increment this on each deploy
+const CACHE_VERSION = 2; // Increment this on each deploy
 const CACHE = `resobreath_cache_v${CACHE_VERSION}`;
 
 // Core assets required for the app shell to boot offline.
