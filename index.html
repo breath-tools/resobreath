@@ -1,0 +1,3806 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ResoBreathe</title>
+<link href="./manifest.json" rel="manifest"/>
+<meta content="#19d3c5" name="theme-color"/>
+<style>
+    :root {
+      --bg: #000;
+      --card: #050505;
+      --panel: #070707;
+      --text: #f2f2f2;
+      --muted: #b5b5b5;
+      --line: rgba(255, 255, 255, 0.10);
+      --shadow: 0 18px 70px rgba(0, 0, 0, 0.70);
+
+      --accent: #19d3c5;
+      --accentSoft: rgba(25, 211, 197, 0.14);
+      --accentSoftHover: rgba(25, 211, 197, 0.20);
+      --accentBorder: rgba(25, 211, 197, 0.42);
+      --glow: 0 0 0 3px rgba(25, 211, 197, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation; /* Removes 300ms tap delay */
+      -webkit-tap-highlight-color: transparent; /* No blue highlight on tap */
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: visible;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+      overflow-y: hidden;
+    }
+
+    .shell {
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+      height: 100dvh;
+      box-sizing: border-box;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* hide scrollbar (Android/Chrome, Firefox) */
+    .shell{ scrollbar-width: none; -ms-overflow-style: none; }
+    .shell::-webkit-scrollbar{ width: 0; height: 0; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 6px;
+      min-height: 56px;
+      box-sizing: border-box;
+    }
+
+    .titleWrap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .appName {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .headerHint{ display:none; }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 16px;
+    }
+
+    /* Fixed burger button with safe-area support */
+    .header {
+      padding-right: 64px;
+    }
+
+    .header .burger {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      right: calc(env(safe-area-inset-right, 0px) + 12px);
+      z-index: 60;
+    }
+
+    body.drawerOpen .header .burger {
+      visibility: hidden;
+    }
+
+    /* burger RIGHT */
+    .burger {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    }
+
+    .burger:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .burger:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .burger:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+
+    .burgerLines {
+      width: 18px;
+      height: 12px;
+      position: relative;
+    }
+
+    .burgerLines span {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .burgerLines span:nth-child(1) {
+      top: 0;
+    }
+
+    .burgerLines span:nth-child(2) {
+      top: 5px;
+      opacity: 0.82;
+    }
+
+    .burgerLines span:nth-child(3) {
+      top: 10px;
+      opacity: 0.65;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .cardTitle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+        h1 {
+      font-size: 18px;
+      margin: 0;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+h2 {
+      font-size: 13px;
+      margin: 0;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 12px 0;
+    }
+
+    /* STAGE */
+    .stage {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+
+      padding: 18px 12px 16px 12px;
+      overflow: visible;
+      background: #000;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 16px;
+    }
+
+    .cue {
+      font-size: 32px;
+      font-weight: 950;
+      letter-spacing: 0.3px;
+      line-height: 1.05;
+    }
+
+    .subCue {
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .ringWrap {
+      width: clamp(260px, 76vw, 380px);
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 25px 90px rgba(0, 0, 0, 0.85));
+    }
+
+    .core {
+      position: absolute;
+      width: 68%;
+      aspect-ratio: 1 / 1;
+      border-radius: 999px;
+      background: #050505;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.75);
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .ringTrack {
+      stroke: rgba(255, 255, 255, 0.10);
+    }
+
+    .ringProgress {
+      stroke: rgba(255, 255, 255, 0.85);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 90ms linear;
+    }
+
+    .remaining {
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 950;
+      color: rgba(255, 255, 255, 0.96);
+    }
+
+    .statsBottom {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    
+      display: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.42);
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+    }
+
+
+    /* remove number input spinners (force manual typing) */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+
+    input:focus {
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .presetRow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .controlsRow {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 16px;
+      padding: 14px 12px;
+      font-weight: 950;
+      letter-spacing: 0.2px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button.primary {
+      border: 0;
+      color: #000;
+      background: #f2f2f2;
+    }
+
+    button.pause {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    button.stop {
+      border: 0;
+      color: #140405;
+      background: linear-gradient(135deg, rgba(255, 92, 92, 0.92), rgba(255, 47, 85, 0.84));
+    }
+
+    .smallBtn {
+      padding: 10px 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: none;
+    }
+
+    .smallBtn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .smallBtn:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease;
+    }
+
+    .smallBtn.subtle {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* active state for toggles + presets */
+.smallBtn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 0 0 3px rgba(25, 211, 197, 0.18);
+}
+.smallBtn.active:hover {
+  background: var(--accent);
+  filter: brightness(1.03);
+}
+
+    /* DRAWER */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: none;
+      z-index: 40;
+    }
+
+    .overlay.open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(360px, 88vw);
+      height: 100vh;
+      background: #000;
+      border-left: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: -20px 0 90px rgba(0, 0, 0, 0.85);
+      transform: translateX(105%);
+      transition: transform 180ms ease;
+      z-index: 50;
+      padding: 16px;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawerTop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .drawerTitle {
+      font-weight: 950;
+      letter-spacing: 0.2px;
+      font-size: 18px;
+    }
+
+    .menuItem {
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.04);
+      margin-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .menuItem.active {
+      border-color: var(--accentBorder);
+      background: rgba(25, 211, 197, 0.10);
+    }
+
+    .menuName {
+      font-weight: 950;
+      font-size: 16px;
+    }
+
+    .menuDesc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .toggleGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .syncGrid {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .pwRow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    
+    .rememberForgetRow{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+.syncRow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .syncStatus {
+      margin-top: 0;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .dotOk {
+      background: rgba(125, 255, 176, 0.90);
+    }
+
+    .dotBad {
+      background: rgba(255, 92, 92, 0.90);
+    }
+
+    .sessions {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      max-height: 460px;
+      overflow: auto;
+      padding-right: 6px;
+      margin-top: 10px;
+    }
+
+    /* History: keep Load more compact (Bute-style) even inside .row grid */
+    #sessionsMoreBtn { justify-self: start; }
+
+    .historyChartCard {
+      margin-top: 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(0, 0, 0, 0.22);
+      padding: 12px 12px;
+    }
+
+    .historyChartHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    #stageCard .statsBottom { display:none !important; }
+
+    #historyChart {
+      width: 100%;
+      /* give the chart enough vertical room so axis labels don't clip */
+      height: 210px;
+      display: block;
+    }
+
+
+
+    .sessionItem {
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(0, 0, 0, 0.28);
+      display: grid;
+      gap: 8px;
+    }
+
+    .sessionTop {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .sessionTitle {
+      font-weight: 950;
+      font-size: 13px;
+    }
+
+    .sessionMeta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      margin-top: 3px;
+    }
+
+    .sessionActions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 720px) {
+      .cue {
+        font-size: 28px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      
+      .row.twoCol {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  
+    /* ---- UI: stage inside ring + hide header/stage outside Practice ---- */
+    .ringWrap { position: relative; }
+    .ringOverlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 4px;
+      z-index: 5;
+      pointer-events: none;
+      transform: translateY(-2%);
+    }
+    .ringOverlay .status { font-size: 12px; }
+    .ringOverlay .cue { font-size: 30px; }
+    .ringOverlay .subCue { font-size: 14px; }
+    .remainingSmall{
+      font-size: clamp(18px, 4.6vw, 24px);
+      font-weight: 950;
+      color: var(--accent);
+      letter-spacing: 0.35px;
+      text-shadow: 0 0 18px rgba(25, 211, 197, 0.18);
+    }
+
+
+    .statsBottom{display:none !important;}
+    /* when drawer is open, never show burgers (prevents overlap with Close) */
+body.drawerOpen .header .burger { visibility: hidden; }
+    /* keep burger aligned consistently across pages */
+    .header .burger{
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      right: calc(env(safe-area-inset-right, 0px) + 12px);
+      z-index: 60;
+    }
+    /* prevent header layout from reserving space for fixed burger */
+    .header{ padding-right: 64px; }
+
+    /* If NOT on practice, hide stage card (the big ring) */
+    .shell[data-page]:not([data-page="practice"]) #stageCard { display: none; }
+    /* Practice: compact quick settings + custom drawer */
+    .quickSettings{margin-top:10px;margin-bottom:14px}
+    .quickLabel{font-weight:700;color:rgba(255,255,255,.85);font-size:13px;margin-bottom:8px}
+    .durationRow{margin-top:12px}
+    .durationRow label{display:block;color:rgba(255,255,255,.70);font-size:12px;margin-bottom:6px}
+    .durationRow #sessionMinutes{
+      font-weight: 800;
+      color: var(--accent);
+      caret-color: var(--accent);
+      text-align: left;
+    }
+    .advancedRow{margin-top:10px}
+    .controlsRow{margin-top:10px}
+
+    /* Practice custom settings drawer (Bute-style, slides from top) */
+.drawerOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.drawerOverlay.hidden{ display: none; }
+.drawerSheet{
+  width: min(560px, 100%);
+  background: rgba(20,20,20,0.92);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+
+  transform: translateY(-50px);
+  opacity: 0;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+.drawerOverlay:not(.hidden) .drawerSheet{
+  transform: translateY(0);
+  opacity: 1;
+}
+.drawerHeader{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+.drawerSheet .drawerTitle{
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+}
+.drawerBody .muted{
+  margin:0 0 12px 0;
+  color:rgba(255,255,255,0.65);
+  font-size:13px;
+  line-height:1.3;
+}
+
+/* Custom drawer layout: one setting per row + centered bold values */
+.settings-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.drawerSheet .settings-grid{
+  grid-template-columns: 1fr !important;
+  gap: 12px;
+}
+.s-item{
+  background: rgba(0, 0, 0, 0.35);
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.s-item label{
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  letter-spacing: 0.08em;
+}
+.s-item input{
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 15px;
+  text-align: center;
+  font-weight: 800;
+  outline: none;
+  padding: 0;
+}
+.s-item input:focus-visible { box-shadow: none; }
+
+    /* Update available overlay (SW user-controlled update) */
+    #updateOverlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 9999;
+      padding: 18px;
+    }
+    #updateOverlay.show { display: flex; }
+    #updateCard {
+      width: min(520px, 100%);
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(10,10,10,0.92);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    #updateTitle { font-weight: 950; font-size: 16px; margin: 0 0 6px 0; }
+    #updateDesc { color: var(--muted); font-size: 13px; margin: 0 0 14px 0; line-height: 1.35; }
+    #updateActions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    #updateActions .btn {
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      user-select: none;
+    }
+    #btnUpdateReload { background: var(--accentSoft); border-color: var(--accentBorder); }
+    #btnUpdateLater { background: rgba(255,255,255,0.04); }
+
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      max-width: min(92vw, 520px);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(18, 18, 18, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      box-shadow: 0 14px 60px rgba(0, 0, 0, 0.55);
+      z-index: 9999;
+      font-size: 13px;
+      line-height: 1.25;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .toast.hidden { display: none; }
+    .toast .toastMsg { flex: 0 1 auto; }
+
+    /* Large centered toast for important notifications */
+    .toast.toast-large {
+      top: 50%;
+      bottom: auto;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(420px, 88vw);
+      max-width: 420px;
+      padding: 22px 24px;
+      border-radius: 18px;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.4;
+      flex-direction: column;
+      text-align: center;
+      background: rgba(10, 10, 10, 0.95);
+      border: 1px solid rgba(25, 211, 197, 0.32);
+      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(25, 211, 197, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .toast.toast-large button { margin-top: 12px; width: 100%; }
+
+    /* Toast action button */
+    .toast .toastBtn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 950;
+      border: 0;
+      background: var(--accent);
+      color: #000;
+      cursor: pointer;
+      margin-left: 12px;
+    }
+    .toast .toastBtn:hover { filter: brightness(1.1); }
+    .toast .toastBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  
+    /* Offline banner */
+    .offlineBanner {
+      position: fixed;
+      left: 50%;
+      top: calc(env(safe-area-inset-top, 0px) + 10px);
+      transform: translateX(-50%);
+      max-width: min(92vw, 520px);
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 92, 92, 0.18);
+      border: 1px solid rgba(255, 92, 92, 0.32);
+      color: var(--text);
+      box-shadow: 0 14px 60px rgba(0, 0, 0, 0.45);
+      z-index: 9999;
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .offlineBanner.hidden { display: none; }
+
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+<div class="drawerTop">
+<div class="drawerTitle">ResoBreathe</div>
+<button class="smallBtn subtle" id="closeDrawerBtn">Close</button>
+</div>
+<div class="menuItem active" data-page="practice">
+<div class="menuName">Practice</div>
+<div class="menuDesc">Breathing session</div>
+</div>
+<div class="menuItem" data-page="instructions">
+<div class="menuName">Instructions</div>
+<div class="menuDesc">What this practice is</div>
+</div>
+<div class="menuItem" data-page="settings">
+<div class="menuName">Settings</div>
+<div class="menuDesc">Cues, sync, wake lock</div>
+</div>
+<div class="menuItem" data-page="history">
+<div class="menuName">History</div>
+<div class="menuDesc">Sessions list</div>
+</div>
+<div class="menuItem" data-page="about">
+<div class="menuName">About</div>
+<div class="menuDesc">App info</div>
+</div>
+<div class="divider"></div>
+</div>
+<div class="shell" data-page="practice" id="shell">
+<div class="header">
+<div class="titleWrap">
+<div class="appName">ResoBreathe</div>
+<div aria-hidden="true" class="headerHint" id="headerHint"></div>
+</div>
+<button aria-label="Menu" class="burger" id="burgerBtn">
+<div class="burgerLines">
+<span></span><span></span><span></span>
+</div>
+</button>
+</div>
+<div class="card stage" id="stageCard">
+<div class="ringWrap" id="ringWrap">
+<div aria-hidden="true" class="ringOverlay">
+<div class="status" id="status">Ready</div>
+<div class="cue" id="cue">Press Start</div>
+<div class="subCue" id="subCue"></div>
+<div class="remainingSmall" id="remainingLine">--:--</div>
+</div>
+<div class="core"></div>
+<svg aria-hidden="true" viewbox="0 0 340 340">
+<circle cx="170" cy="170" fill="rgba(0,0,0,0.30)" r="140"></circle>
+<circle class="ringTrack" cx="170" cy="170" fill="none" r="140" stroke-width="18"></circle>
+<circle class="ringProgress" cx="170" cy="170" fill="none" id="progressCircle" r="140" stroke-width="18" transform="rotate(-90 170 170)"></circle>
+</svg>
+</div>
+<div class="statsBottom">
+<span class="tag">Cycle: <b id="cycleLen">--</b></span>
+<span class="tag">BPM: <b id="bpm">--</b></span>
+<span class="tag">Pattern: <b id="pattern">--</b></span>
+</div>
+</div>
+<div class="card">
+<div class="page active" id="page-practice">
+<!-- Quick settings (top) -->
+<div class="quickSettings">
+<div class="quickLabelRow">
+<div class="quickLabel">Presets (10s cycle)</div>
+</div>
+<div class="presetRow">
+<button class="smallBtn subtle" id="preset50">50/50</button>
+<button class="smallBtn subtle" id="preset40">40/60</button>
+<button class="smallBtn subtle" id="preset30">30/70</button>
+<button class="smallBtn subtle" id="preset20">20/80</button>
+</div>
+<div class="durationRow">
+<label for="sessionMinutes">Session duration (minutes, 0 = unlimited)</label>
+<input id="sessionMinutes" max="999" min="0" step="1" type="number" value="10"/>
+</div>
+<div class="advancedRow">
+<button aria-label="Open custom inhale/exhale settings" class="smallBtn subtle" id="openCustomBtn">Custom settings</button>
+</div>
+</div>
+<!-- Main controls -->
+<div class="controlsRow">
+<button aria-label="Start session" class="primary" id="startBtn">Start</button>
+<button aria-label="Pause or resume session" class="pause" id="pauseBtn">Pause</button>
+<button aria-label="Stop session" class="stop" id="stopBtn">Stop</button>
+</div>
+<div class="divider"></div>
+<!-- Custom settings drawer -->
+<div aria-hidden="true" class="drawerOverlay hidden" id="customDrawer">
+<div aria-label="Custom settings" aria-modal="true" class="drawerSheet" role="dialog">
+<div class="drawerHeader">
+<div class="drawerTitle">Custom settings</div>
+<button aria-label="Close custom settings" class="smallBtn subtle" id="closeCustomBtn">Close</button>
+</div>
+<div class="drawerBody">
+<p class="muted">Fine-tune the inhale/exhale timing if you want a custom pattern.</p>
+<div class="settings-grid">
+  <div class="s-item"><label>Inhale (sec)</label><input id="inhale" max="30" min="1" step="0.5" type="number" value="4"/></div>
+  <div class="s-item"><label>Exhale (sec)</label><input id="exhale" max="30" min="1" step="0.5" type="number" value="6"/></div>
+</div>
+</div>
+</div>
+</div>
+<div id="lastSessionBox" style="display:none"></div></div>
+<div class="page" id="page-instructions">
+<div class="cardTitle">
+<h1>Instructions</h1>
+</div>
+<div class="tiny" style="font-size:16px;color:rgba(255,255,255,0.92);line-height:1.75;">
+<p style="margin-top:0;">
+            HRV Resonance Breathing is slow, steady breathing that helps synchronize your breath with natural heart
+            rhythm patterns (HRV).
+            Most people resonate best around 6 breaths/min (about a 10-second cycle).
+          </p>
+<p style="margin-bottom:0;">
+            Choose a simple pattern (5/5, 4/6, 3/7, 2/8), keep the breath smooth and quiet, stay still, and let the
+            rhythm settle.
+            If you feel lightheaded, reduce depth or stop.
+          </p>
+</div>
+</div>
+<div class="page" id="page-settings">
+<div class="cardTitle">
+<h1>Settings</h1>
+</div>
+<div class="toggleGrid">
+<button class="smallBtn subtle" id="toggleSoundBtn">Sound: <span id="soundState">On</span></button>
+<button class="smallBtn subtle" id="toggleTicksBtn">Countdown ticks: <span id="ticksState">Off</span></button>
+<button class="smallBtn subtle" id="toggleWakeBtn">Wake lock: <span id="wakeState">On</span></button>
+<button class="smallBtn subtle" id="toggleStartCountdownBtn">
+            Start countdown: <span id="startCountdownState">On</span>
+</button>
+</div>
+<div class="divider"></div>
+<h2>CouchDB sync (optional)</h2>
+<div class="syncGrid">
+<div>
+<label>Server URL</label>
+<input id="couchUrl" placeholder="https://couch.example.com" type="text"/>
+</div>
+<div>
+<label>Database name</label>
+<input id="couchDbName" placeholder="resobreathe" type="text"/>
+</div>
+<div class="row twoCol">
+<div>
+<label>Username</label>
+<input id="couchUser" placeholder="username" type="text"/>
+</div>
+<div>
+<label>Password</label>
+<div class="pwRow">
+<input id="couchPass" placeholder="password" type="password"/>
+<button aria-label="Toggle password visibility" class="smallBtn subtle" id="pwToggleBtn" type="button">👁</button>
+</div>
+</div>
+</div>
+<div style="margin-top:8px;">
+<!-- Android/PWA: checkbox taps can be flaky. Use a button + hidden input for reliable toggling. -->
+<input id="rememberPass" style="display:none" type="checkbox"/>
+<div class="rememberForgetRow">
+<button class="smallBtn subtle" id="rememberPassBtn" onclick="toggleRememberPass(event)" style="justify-content:flex-start;gap:10px;" type="button">
+                Remember password: <span id="rememberPassState" style="font-weight:950;">Off</span>
+</button>
+<button class="smallBtn subtle" id="forgetPassBtn" style="background:rgba(255,92,92,0.14);border-color:rgba(255,92,92,0.28);" type="button">
+                Forget Stored Password
+              </button>
+</div>
+<div class="tiny" style="margin-top:6px;line-height:1.45;">
+                Warning: If enabled, the CouchDB password is stored locally in your browser.
+                Do not use on public/shared machines. Anyone with device access can read it.
+              </div>
+</div>
+<div class="syncRow">
+<div class="syncStatus">
+<span class="dot" id="syncDot"></span>
+<span id="syncText">Not connected</span>
+</div>
+<button class="smallBtn subtle" id="syncBtn">Connect</button>
+</div>
+</div>
+</div>
+<div class="page" id="page-history">
+<div class="cardTitle">
+<h1>History</h1>
+</div>
+<div class="historyChartCard">
+<div class="historyChartHead">
+<div class="tiny">Last 14 days</div>
+</div>
+<canvas id="historyChart"></canvas>
+</div>
+<div class="row" style="margin-top:8px;">
+<button class="smallBtn subtle" id="exportBtn">Export JSON</button>
+<button class="smallBtn subtle" id="importBtn">Import JSON</button>
+</div>
+<input accept="application/json,.json" id="importFile" style="position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;" type="file"/>
+<div class="sessions" id="sessions"></div>
+<div class="row" style="margin-top:10px;">
+<button class="smallBtn subtle" id="sessionsMoreBtn" type="button">Load more</button>
+</div>
+</div>
+<div class="page" id="page-about">
+<div class="cardTitle">
+<h1>About</h1>
+</div>
+<div class="tiny" style="font-size:16px;color:rgba(255,255,255,0.92);line-height:1.75;">
+<p style="margin-top:0;">
+            ResoBreathe is a minimal resonant breathing practice app.
+          </p>
+<p style="margin:10px 0 0 0;color:rgba(255,255,255,0.92);">
+            For more information, visit
+            <a href="https://github.com/breath-tools/resobreath" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:900;" target="_blank">
+              breath-tools/resobreath
+            </a><span style="opacity:0.65;font-weight:900;margin-left:6px;font-size:13px;">↗</span>
+</p>
+<div class="divider" style="margin:18px 0;"></div>
+<p style="margin:0;color:rgba(255,255,255,0.92);">
+            This app is a Progressive Web App (PWA). You can install it on your device for faster launch and offline use.
+          </p>
+<ul style="margin:10px 0 0 18px;padding:0;color:rgba(255,255,255,0.88);line-height:1.55;">
+<li>Android (Chrome): Menu → Install app</li>
+<li>iOS (Safari): Share → Add to Home Screen</li>
+<li>Desktop (Chrome/Edge): Install icon in the address bar</li>
+</ul>
+<div class="divider" style="margin:18px 0;"></div>
+<p style="margin:0;color:rgba(255,255,255,0.72);font-weight:900;font-size:14px;">
+            Version 1.1 - Licensed under the GNU GPL v3
+          </p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Toast notification element (must be before script) -->
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+<!-- PouchDB (bundled with app) -->
+<script src="./pouchdb.min.js"></script>
+<script>
+    (function () {
+      function clamp(x, a, b) {
+        if (Number.isNaN(x)) return a;
+        return Math.max(a, Math.min(b, x));
+      }
+      function fmtTime(sec) {
+        if (!Number.isFinite(sec)) return "--:--";
+        sec = Math.max(0, sec);
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec - m * 60);
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      }
+      function nowMs() { return performance.now(); }
+      function nowEpochMs() { return Date.now(); }
+
+      /* constants */
+      const CONST = {
+        BEEP_VOL: 0.18,
+        BEEP_FADE_IN: 0.01,
+
+        PHASE_INHALE_FREQ: 880,
+        PHASE_EXHALE_FREQ: 440,
+        PHASE_BEEP_MS: 110,
+
+        TICK_FREQ: 1200,
+        TICK_MS: 55,
+
+        START_BEEP_FREQ: 1400,
+        START_BEEP_MS: 90,
+
+        AUDIO_UNLOCK_FREQ: 1000,
+        AUDIO_UNLOCK_MS: 20,
+
+        COUNTDOWN_BEEP_FREQ: 1000,
+        COUNTDOWN_BEEP_MS: 45,
+      };
+
+      const SESSION_STORE_KEY = "resobreathe_sessions_local_v7";
+
+  const TOAST_DURATION = 3500;
+  const IMPORTING_TOAST_MS = 4000;
+
+
+      function debounce(fn, ms) {
+        let t = null;
+        return (...args) => {
+          if (t) clearTimeout(t);
+          t = setTimeout(() => fn(...args), ms);
+        };
+      }
+
+      
+
+  /* Toast */
+  function toast(msg, ms = 3500, options = {}) {
+    try {
+      if (!el.toast) return;
+
+      // Cancel previous timer + cleanup BEFORE touching DOM
+      try { if (toast._t) clearTimeout(toast._t); } catch (e) { console.error(e); }
+      toast._t = null;
+      try { if (toast._cleanup) toast._cleanup(); } catch (e) { console.error(e); }
+      toast._cleanup = null;
+
+      // Empty message → hide
+      const t = String(msg || "");
+      if (!t) {
+        el.toast.textContent = "";
+        el.toast.classList.add("hidden");
+        el.toast.classList.remove("toast-large");
+        return;
+      }
+
+      el.toast.textContent = t;
+      el.toast.classList.remove("hidden");
+
+      // Large style for important notifications (e.g., updates)
+      if (options.large) {
+        el.toast.classList.add("toast-large");
+      } else {
+        el.toast.classList.remove("toast-large");
+      }
+
+      toast._t = setTimeout(() => {
+        try { toast(""); } catch (e) { console.error(e); }
+      }, Math.max(800, Number(ms || 0)));
+    } catch (e) { console.error("Toast error:", e); }
+  }
+
+  function toastAction(msg, actionLabel, onAction, ms = 5000) {
+    try {
+      if (!el.toast) return;
+
+      // Cancel previous timer + cleanup BEFORE rebuilding
+      try { if (toast._t) clearTimeout(toast._t); } catch (e) { console.error(e); }
+      toast._t = null;
+      try { if (toast._cleanup) toast._cleanup(); } catch (e) { console.error(e); }
+      toast._cleanup = null;
+
+      const t = String(msg || "");
+      if (!t) return toast("");
+
+      const label = String(actionLabel || "Undo");
+
+      // Build DOM without innerHTML (safer, predictable cleanup)
+      const span = document.createElement("span");
+      span.className = "toastMsg";
+      span.textContent = t;
+
+      const btn = document.createElement("button");
+      btn.className = "toastBtn";
+      btn.type = "button";
+      btn.textContent = label;
+
+      // Use replaceChildren (with Safari 13 fallback)
+      try {
+        el.toast.replaceChildren(span, btn);
+      } catch (e) {
+        // Safari 13 doesn't support replaceChildren
+        el.toast.textContent = "";
+        el.toast.appendChild(span);
+        el.toast.appendChild(btn);
+      }
+
+      el.toast.classList.remove("hidden");
+      el.toast.classList.remove("toast-large");
+
+      let done = false;
+      const handler = async (ev) => {
+        try { ev?.preventDefault(); } catch (e) { console.error(e); }
+        try { ev?.stopPropagation(); } catch (e) { console.error(e); }
+        if (done) return;
+        done = true;
+        try { if (toast._t) clearTimeout(toast._t); } catch (e) { console.error(e); }
+        toast._t = null;
+        try { btn.disabled = true; } catch (e) { console.error(e); }
+        try { if (typeof onAction === "function") await onAction(); } catch (e) { console.error("Toast action error:", e); }
+        toast("");
+      };
+
+      btn.addEventListener("click", handler);
+
+      toast._cleanup = () => {
+        try { btn.removeEventListener("click", handler); } catch (e) { console.error(e); }
+      };
+
+      toast._t = setTimeout(() => { toast(""); }, Math.max(1000, Number(ms || 0)));
+    } catch (e) { console.error("Toast action error:", e); }
+  }
+
+  function safeJsonParse(raw, fallback) {
+        try { return JSON.parse(raw); } catch (e) { return fallback; }
+      }
+
+  /* Global Error Handlers */
+  window.addEventListener("error", (ev) => {
+    try {
+      console.error("Unhandled error:", ev && (ev.error || ev.message) ? ev.error || ev.message : ev);
+    } catch (e) {}
+    toast("Unexpected error. Try reloading.");
+  });
+
+  window.addEventListener("unhandledrejection", (ev) => {
+    try {
+      console.error("Unhandled rejection:", ev && ev.reason ? ev.reason : ev);
+    } catch (e) {}
+    toast("Unexpected error. Try again.");
+  });
+
+  /* Cleanup System */
+  const cleanupCallbacks = [];
+
+  function registerCleanup(fn) {
+    if (typeof fn === "function") {
+      cleanupCallbacks.push(fn);
+    }
+  }
+
+  function executeCleanup() {
+    for (const fn of cleanupCallbacks) {
+      try {
+        fn();
+      } catch (e) {
+        console.error("Cleanup error:", e);
+      }
+    }
+    cleanupCallbacks.length = 0;
+  }
+
+  function cleanupOnUnload() {
+    // Terminate timer worker
+    try {
+      if (window.timerWorker) {
+        window.timerWorker.terminate();
+        window.timerWorker = null;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Cancel RAF
+    try {
+      if (window.rafId) {
+        cancelAnimationFrame(window.rafId);
+        window.rafId = null;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Stop sync
+    try {
+      if (window.syncHandler) {
+        window.syncHandler.cancel();
+        window.syncHandler = null;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Close DB
+    try {
+      if (window.db) {
+        window.db.close();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Execute registered cleanup callbacks
+    executeCleanup();
+  }
+
+  window.addEventListener("beforeunload", cleanupOnUnload);
+  window.addEventListener("pagehide", cleanupOnUnload);
+
+      const el = {
+        burgerBtn: document.getElementById("burgerBtn"),
+shell: document.getElementById("shell"),
+        stageCard: document.getElementById("stageCard"),
+        overlay: document.getElementById("overlay"),
+        drawer: document.getElementById("drawer"),
+        closeDrawerBtn: document.getElementById("closeDrawerBtn"),
+        headerHint: document.getElementById("headerHint"),
+
+        inhale: document.getElementById("inhale"),
+        exhale: document.getElementById("exhale"),
+        openCustomBtn: document.getElementById("openCustomBtn"),
+        closeCustomBtn: document.getElementById("closeCustomBtn"),
+        customDrawer: document.getElementById("customDrawer"),
+        sessionMinutes: document.getElementById("sessionMinutes"),
+
+        preset50: document.getElementById("preset50"),
+        preset40: document.getElementById("preset40"),
+        preset30: document.getElementById("preset30"),
+        preset20: document.getElementById("preset20"),
+
+        startBtn: document.getElementById("startBtn"),
+        pauseBtn: document.getElementById("pauseBtn"),
+        stopBtn: document.getElementById("stopBtn"),
+
+        status: document.getElementById("status"),
+        cue: document.getElementById("cue"),
+        subCue: document.getElementById("subCue"),
+        remainingLine: document.getElementById("remainingLine"),
+
+        cycleLen: document.getElementById("cycleLen"),
+        bpm: document.getElementById("bpm"),
+        pattern: document.getElementById("pattern"),
+
+        progressCircle: document.getElementById("progressCircle"),
+        lastSessionBox: document.getElementById("lastSessionBox"),
+
+        toggleSoundBtn: document.getElementById("toggleSoundBtn"),
+        toggleTicksBtn: document.getElementById("toggleTicksBtn"),
+        toggleWakeBtn: document.getElementById("toggleWakeBtn"),
+        toggleStartCountdownBtn: document.getElementById("toggleStartCountdownBtn"),
+
+        soundState: document.getElementById("soundState"),
+        ticksState: document.getElementById("ticksState"),
+        wakeState: document.getElementById("wakeState"),
+        startCountdownState: document.getElementById("startCountdownState"),
+
+        couchUrl: document.getElementById("couchUrl"),
+        couchDbName: document.getElementById("couchDbName"),
+        couchUser: document.getElementById("couchUser"),
+        couchPass: document.getElementById("couchPass"),
+        pwToggleBtn: document.getElementById("pwToggleBtn"),
+        syncBtn: document.getElementById("syncBtn"),
+        syncDot: document.getElementById("syncDot"),
+        syncText: document.getElementById("syncText"),
+
+        exportBtn: document.getElementById("exportBtn"),
+        importBtn: document.getElementById("importBtn"),
+        importFile: document.getElementById("importFile"),
+        toast: document.getElementById("toast"),
+        importBtn: document.getElementById("importBtn"),
+        importFile: document.getElementById("importFile"),
+        sessions: document.getElementById("sessions"),
+        sessionsMoreBtn: document.getElementById("sessionsMoreBtn"),
+        historyChart: document.getElementById("historyChart"),
+          rememberPass: document.getElementById("rememberPass"),
+          rememberPassBtn: document.getElementById("rememberPassBtn"),
+          rememberPassState: document.getElementById("rememberPassState"),
+          forgetPassBtn: document.getElementById("forgetPassBtn"),
+      };
+
+      /* drawer */
+      const PAGES = ["practice", "instructions", "settings", "history", "about"];
+      let currentPage = "practice";
+
+      function updateBurgerVisibility() {
+        const drawerOpen = el.drawer.classList.contains("open");
+        if (drawerOpen) {
+          if (el.burgerBtn) el.burgerBtn.style.visibility = "hidden";
+return;
+        }
+        // Burger is always the same button in the header (visual only)
+        if (el.burgerBtn) el.burgerBtn.style.visibility = "visible";
+}
+      function openDrawer() {
+        document.body.classList.add("drawerOpen");
+        el.overlay.classList.add("open");
+        el.drawer.classList.add("open");
+        updateBurgerVisibility();
+      }
+      function closeDrawer() {
+        el.overlay.classList.remove("open");
+        el.drawer.classList.remove("open");
+        document.body.classList.remove("drawerOpen");
+        updateBurgerVisibility();
+      }
+      el.burgerBtn.addEventListener("click", openDrawer);
+el.closeDrawerBtn.addEventListener("click", closeDrawer);
+      el.overlay.addEventListener("click", closeDrawer);
+
+      /* Chart Rendering Detection */
+      let historyChartsDirty = false;
+      let historyChartsRetry = 0;
+      let historyChartsRetryTimer = null;
+
+      function isHistoryPageActive() {
+        const p = document.getElementById("page-history");
+        return !!(p && p.classList.contains("active"));
+      }
+
+      function historyChartsHaveLayout() {
+        if (!isHistoryPageActive()) return false;
+        if (!el.historyChart) return false;
+        const r = el.historyChart.getBoundingClientRect();
+        return (r.width >= 80 && r.height >= 60);
+      }
+
+      function scheduleHistoryChartsRender() {
+        historyChartsDirty = true;
+        if (!isHistoryPageActive()) return;
+
+        if (historyChartsRetryTimer) {
+          clearTimeout(historyChartsRetryTimer);
+          historyChartsRetryTimer = null;
+        }
+        historyChartsRetry = 0;
+
+        const attempt = () => {
+          if (!historyChartsDirty) return;
+          if (!isHistoryPageActive()) return;
+          if (!state.historyChartList) return;
+
+          if (historyChartsHaveLayout()) {
+            try { renderHistoryChart(state.historyChartList); } catch (e) { console.error(e); }
+            historyChartsDirty = false;
+            return;
+          }
+
+          historyChartsRetry++;
+          if (historyChartsRetry > 12) return;
+
+          historyChartsRetryTimer = setTimeout(() => {
+            historyChartsRetryTimer = null;
+            requestAnimationFrame(attempt);
+          }, 60);
+        };
+
+        requestAnimationFrame(() => requestAnimationFrame(attempt));
+      }
+
+      window.addEventListener("resize", () => {
+        if (state.historyChartList) scheduleHistoryChartsRender();
+      });
+
+      function setActivePage(pageName) {
+        if (!PAGES.includes(pageName)) pageName = "practice";
+        if (state.running && pageName !== "practice") stop(false);
+
+        PAGES.forEach(p => {
+          const node = document.getElementById(`page-${p}`);
+          if (node) node.classList.toggle("active", p === pageName);
+        });
+
+        document.querySelectorAll(".menuItem").forEach(mi => {
+          mi.classList.toggle("active", mi.getAttribute("data-page") === pageName);
+        });
+
+        // UI: hide header + stage outside Practice
+        currentPage = pageName;
+        if (el.shell) el.shell.setAttribute("data-page", pageName);
+        updateBurgerVisibility();
+
+        // Re-render chart after History becomes visible (fixes label clipping on mobile)
+        if (pageName === "history") {
+          scheduleHistoryChartsRender();
+        }
+
+        // Always clear the header page label when returning to Practice
+        (el.headerHint && (el.headerHint.textContent = ""));
+
+        closeDrawer();
+      }
+
+      document.querySelectorAll(".menuItem").forEach(mi => {
+        mi.addEventListener("click", () => setActivePage(mi.getAttribute("data-page") || "practice"));
+      });
+
+      /* DB (late init after pouch loads) */
+      let db = null;
+      const DB_NAME = "resobreathe_db_v7";
+
+      function initDbIfAvailable() {
+        const hasPouch = typeof window.PouchDB !== "undefined";
+        if (!hasPouch) return null;
+        try {
+          return new window.PouchDB(DB_NAME);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      /* settings */
+      const SETTINGS_KEY = "resobreathe_settings_v7";
+      const settings = {
+        sound: true,
+        countdownTicks: false,
+        wakeLock: true,
+        startCountdown: true,
+        startCountdownSec: 5,
+
+        couchUrl: "",
+        couchDbName: "",
+        couchUser: "",
+        couchPass: "",
+
+        autoSync: true,
+          rememberPass: false,
+      };
+
+      const wakeSupported = ("wakeLock" in navigator);
+
+      function readSettingsSnapshot() {
+        return {
+          inhale: clamp(parseFloat(el.inhale.value), 0.5, 60),
+          exhale: clamp(parseFloat(el.exhale.value), 0.5, 60),
+          sessionMinutes: clamp(parseFloat(el.sessionMinutes.value), 0, 999),
+
+          sound: !!settings.sound,
+          countdownTicks: !!settings.countdownTicks,
+          wakeLock: !!settings.wakeLock,
+
+          startCountdown: !!settings.startCountdown,
+          startCountdownSec: Number(settings.startCountdownSec || 5),
+
+          couchUrl: String(settings.couchUrl || ""),
+          couchDbName: String(settings.couchDbName || ""),
+          couchUser: String(settings.couchUser || ""),
+
+          /* do not persist password */
+          couchPass: "",
+          autoSync: !!settings.autoSync,
+            rememberPass: !!settings.rememberPass,
+        };
+      }
+
+      function applySettingsSnapshot(s) {
+        if (!s || typeof s !== "object") return;
+
+        if (typeof s.inhale === "number") el.inhale.value = String(s.inhale);
+        if (typeof s.exhale === "number") el.exhale.value = String(s.exhale);
+        if (typeof s.sessionMinutes === "number") el.sessionMinutes.value = String(s.sessionMinutes);
+
+        if (typeof s.sound === "boolean") settings.sound = s.sound;
+if (typeof s.countdownTicks === "boolean") settings.countdownTicks = s.countdownTicks;
+        if (typeof s.wakeLock === "boolean") settings.wakeLock = s.wakeLock;
+
+        if (typeof s.startCountdown === "boolean") settings.startCountdown = s.startCountdown;
+        if (typeof s.startCountdownSec === "number") settings.startCountdownSec = s.startCountdownSec;
+
+        if (typeof s.couchUrl === "string") settings.couchUrl = s.couchUrl;
+        if (typeof s.couchDbName === "string") settings.couchDbName = s.couchDbName;
+        if (typeof s.couchUser === "string") settings.couchUser = s.couchUser;
+
+        if (typeof s.autoSync === "boolean") settings.autoSync = s.autoSync;
+          if (typeof s.rememberPass === "boolean") settings.rememberPass = s.rememberPass;
+      }
+
+      function saveSettingsLocal() {
+        try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(readSettingsSnapshot())); } catch (e) { }
+      }
+      const saveSettingsLocalDebounced = debounce(saveSettingsLocal, 250);
+
+      function saveSettingsEverywhere(instant) {
+        if (instant) saveSettingsLocal();
+        else saveSettingsLocalDebounced();
+      }
+
+      function loadSettingsLocal() {
+        try {
+          const raw = localStorage.getItem(SETTINGS_KEY);
+          if (!raw) return;
+          applySettingsSnapshot(JSON.parse(raw));
+        } catch (e) { }
+      }
+
+      function applySettingsUI() {
+        el.soundState.textContent = settings.sound ? "On" : "Off";
+          el.toggleSoundBtn.classList.toggle("active", settings.sound);
+el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
+          el.toggleTicksBtn.classList.toggle("active", settings.countdownTicks);
+
+        el.wakeState.textContent = settings.wakeLock ? "On" : "Off";
+          el.toggleWakeBtn.classList.toggle("active", settings.wakeLock);
+        el.toggleWakeBtn.disabled = !wakeSupported;
+        if (!wakeSupported) el.wakeState.textContent = "Unsupported";
+
+        el.startCountdownState.textContent = settings.startCountdown ? "On" : "Off";
+          el.toggleStartCountdownBtn.classList.toggle("active", settings.startCountdown);
+
+        el.couchUrl.value = settings.couchUrl || "";
+        el.couchDbName.value = settings.couchDbName || "";
+        el.couchUser.value = settings.couchUser || "";
+        el.couchPass.value = settings.couchPass || "";
+          if (el.rememberPass) el.rememberPass.checked = !!settings.rememberPass;
+          if (el.rememberPassState && el.rememberPassBtn) {
+            el.rememberPassState.textContent = settings.rememberPass ? "On" : "Off";
+            el.rememberPassBtn.classList.toggle("active", !!settings.rememberPass);
+          }
+      }
+
+      /* ring */
+      const R = 140;
+      const CIRC = 2 * Math.PI * R;
+      el.progressCircle.setAttribute("stroke-dasharray", String(CIRC));
+      el.progressCircle.setAttribute("stroke-dashoffset", String(CIRC));
+
+      function ringSetProgress01(p01) {
+        const p = clamp(p01, 0, 1);
+        const offset = CIRC * (1 - p);
+        el.progressCircle.style.strokeDashoffset = String(offset);
+      }
+
+      
+        function getInhaleExhale() {
+          return {
+            inhale: clamp(parseFloat(el.inhale.value), 0.5, 60),
+            exhale: clamp(parseFloat(el.exhale.value), 0.5, 60),
+          };
+        }
+
+        function validateBreathPattern(inhaleSec, exhaleSec) {
+          if (!Number.isFinite(inhaleSec) || !Number.isFinite(exhaleSec)) {
+            return { ok: false, msg: "Invalid inhale/exhale" };
+          }
+          if (!(inhaleSec > 0) || !(exhaleSec > 0)) {
+            return { ok: false, msg: "Invalid inhale/exhale" };
+          }
+          return { ok: true, msg: "OK" };
+        }
+
+        function updateMeta() {
+        const { inhale, exhale } = getInhaleExhale();
+        const cycle = inhale + exhale;
+        el.cycleLen.textContent = `${cycle.toFixed(1)}s`;
+        el.bpm.textContent = (60 / cycle).toFixed(1);
+        el.pattern.textContent = `${inhale.toFixed(1)}/${exhale.toFixed(1)}`;
+          updatePresetActive();
+      }
+
+      function setPreset(inhaleSec, exhaleSec) {
+        el.inhale.value = String(inhaleSec);
+        el.exhale.value = String(exhaleSec);
+        updateMeta();
+        saveSettingsEverywhere(true);
+        if (state.running) stop(false);
+      }
+
+        function updatePresetActive() {
+          const { inhale, exhale } = getInhaleExhale();
+          const match = (a,b) => Math.abs(inhale - a) < 0.01 && Math.abs(exhale - b) < 0.01;
+
+          const map = [
+            [el.preset50, 5, 5],
+            [el.preset40, 4, 6],
+            [el.preset30, 3, 7],
+            [el.preset20, 2, 8],
+          ];
+
+          map.forEach(([btn,a,b]) => {
+            if (!btn) return;
+            btn.classList.toggle("active", match(a,b));
+          });
+        }
+
+
+      el.preset50.addEventListener("click", () => setPreset(5, 5));
+      el.preset40.addEventListener("click", () => setPreset(4, 6));
+      el.preset30.addEventListener("click", () => setPreset(3, 7));
+      el.preset20.addEventListener("click", () => setPreset(2, 8));
+
+      /* audio */
+      /* Audio System */
+      const AUDIO = {
+        ctx: null,
+        unlocked: false,
+        vol: 0.18
+      };
+
+      function audioEnsureUnlocked() {
+        if (!settings.sound) return;
+        if (AUDIO.unlocked && AUDIO.ctx) return;
+
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+
+        try {
+          if (!AUDIO.ctx) AUDIO.ctx = new Ctx();
+          if (AUDIO.ctx.state === "suspended") AUDIO.ctx.resume().catch(() => {});
+          AUDIO.unlocked = true;
+          // tiny inaudible ping to unlock on iOS
+          const t0 = AUDIO.ctx.currentTime;
+          const o = AUDIO.ctx.createOscillator();
+          const g = AUDIO.ctx.createGain();
+          o.frequency.value = 1000;
+          g.gain.value = 0.001;
+          o.connect(g);
+          g.connect(AUDIO.ctx.destination);
+          o.start(t0);
+          o.stop(t0 + 0.02);
+        } catch (e) { console.error(e); }
+      }
+
+      // Single listener for audio unlock
+      document.addEventListener("pointerdown", audioEnsureUnlocked, { once: true, passive: true });
+
+      let wakeLockHintTimeout = null;
+      function ensureAudio() {
+        audioEnsureUnlocked();
+        return AUDIO.ctx;
+      }
+      async function unlockAudio() {
+        if (!settings.sound) return true;
+        audioEnsureUnlocked();
+        return !!AUDIO.ctx;
+      }
+
+
+      function beep(freqHz, ms) {
+        if (!settings.sound) return;
+        try {
+          const ctx = ensureAudio();
+          const t0 = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freqHz;
+
+          const vol = CONST.BEEP_VOL;
+          gain.gain.setValueAtTime(0.0001, t0);
+          gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), t0 + CONST.BEEP_FADE_IN);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + (ms / 1000));
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + (ms / 1000) + 0.02);
+        } catch (e) { }
+      }
+
+      function phaseCue(phaseName) {
+        if (phaseName === "INHALE") { beep(CONST.PHASE_INHALE_FREQ, CONST.PHASE_BEEP_MS); }
+        if (phaseName === "EXHALE") { beep(CONST.PHASE_EXHALE_FREQ, CONST.PHASE_BEEP_MS); }
+      }
+
+      function tickCue() {
+        beep(CONST.TICK_FREQ, CONST.TICK_MS);
+      }
+
+      /* wake lock */
+      let wakeLockSentinel = null;
+      let wakeLockErrorNotified = false;
+      async function requestWakeLockIfEnabled() {
+        if (!settings.wakeLock) return;
+        if (!wakeSupported) return;
+
+        // clear any previous hint timer
+        if (wakeLockHintTimeout) {
+          clearTimeout(wakeLockHintTimeout);
+          wakeLockHintTimeout = null;
+        }
+
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request("screen");
+          wakeLockErrorNotified = false; // Reset on success
+          wakeLockSentinel.addEventListener("release", () => { wakeLockSentinel = null; });
+
+          if (el.headerHint) {
+            /* wake lock hint removed */
+            // el.headerHint.textContent = "";
+            wakeLockHintTimeout = setTimeout(() => {
+              /* wake lock hint removed */
+              wakeLockHintTimeout = null;
+            }, 1800);
+          }
+        } catch (e) {
+          wakeLockSentinel = null;
+          // Toast only once per session while active
+          // state.running check prevents toast when app is idle
+          if (!wakeLockErrorNotified && state.running) {
+            wakeLockErrorNotified = true;
+            toast("Wake Lock blocked. Screen may dim.");
+          }
+        }
+      }
+      async function releaseWakeLock() {
+        try {
+          if (wakeLockSentinel) {
+            await wakeLockSentinel.release();
+            wakeLockSentinel = null;
+          }
+        } catch (e) { wakeLockSentinel = null; }
+      }
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState === "visible" && state.running) {
+          requestWakeLockIfEnabled();
+          try {
+            if (AUDIO.ctx && AUDIO.ctx.state === "suspended") await AUDIO.ctx.resume();
+          } catch (e) {}
+        }
+      });
+
+      /* sessions (PouchDB or localStorage fallback) */
+      function localSessionsRead() {
+        const raw = localStorage.getItem(SESSION_STORE_KEY);
+        const list = safeJsonParse(raw, []);
+        return Array.isArray(list) ? list : [];
+      }
+      function localSessionsWrite(list) {
+        try { localStorage.setItem(SESSION_STORE_KEY, JSON.stringify(list)); } catch (e) { }
+      }
+
+      async function saveSession(sessionDoc) {
+        const doc = {
+          _id: `session:${sessionDoc.startAtEpochMs}:${Math.random().toString(16).slice(2)}`,
+          type: "session",
+          createdAt: nowEpochMs(),
+          ...sessionDoc,
+        };
+
+        if (db) {
+          await db.put(doc);
+          return;
+        }
+
+        const list = localSessionsRead();
+        list.unshift(doc);
+        localSessionsWrite(list);
+      }
+
+      async function loadSessions(limit = 300) {
+        const want = Math.max(1, Math.min(5000, Number(limit) || 300));
+
+        if (db) {
+          const res = await db.allDocs({
+            include_docs: true,
+            descending: true,
+            startkey: "session:\uffff",
+            endkey: "session:",
+            limit: want
+          });
+
+          const out = [];
+          for (const r of res.rows) {
+            const d = r.doc;
+            if (d && d.type === "session") out.push(d);
+            if (out.length >= want) break;
+          }
+          return out;
+        }
+
+        const list = localSessionsRead()
+          .filter(x => x && x.type === "session")
+          .sort((a, b) => (Number(b.startAtEpochMs || 0) - Number(a.startAtEpochMs || 0)));
+
+        return list.slice(0, want);
+      }
+
+      async function deleteSession(doc) {
+        if (!doc) return;
+
+        if (db) {
+          if (!doc._id || !doc._rev) return;
+          await db.remove(doc);
+          return;
+        }
+
+        const list = localSessionsRead();
+        const next = list.filter(x => x && x._id !== doc._id);
+        localSessionsWrite(next);
+      }
+
+      /* Undo Delete System */
+      const undoQueue = [];
+      const UNDO_TTL_MS = 5000;
+
+      function enqueueUndoDelete(doc) {
+        if (!doc) return;
+        const entry = {
+          doc: doc,
+          timestamp: Date.now()
+        };
+        undoQueue.push(entry);
+        showUndoQueueToast();
+      }
+
+      function showUndoQueueToast() {
+        if (undoQueue.length === 0) return;
+        const count = undoQueue.length;
+        const label = count === 1 ? "Undo" : `Undo (${count})`;
+        toastAction(
+          count === 1 ? "Session deleted" : `${count} sessions deleted`,
+          label,
+          undoAllPendingDeletes,
+          UNDO_TTL_MS
+        );
+      }
+
+      async function undoAllPendingDeletes() {
+        const items = [...undoQueue];
+        undoQueue.length = 0;
+        
+        for (const entry of items) {
+          try {
+            await restoreDeletedSession(entry.doc);
+          } catch (e) {
+            console.error("Restore failed:", e);
+          }
+        }
+        
+        await refreshSessionsUI();
+        toast("Restored successfully");
+      }
+
+      async function restoreDeletedSession(doc) {
+        if (!doc) return;
+        
+        if (db) {
+          try {
+            const restored = { ...doc };
+            delete restored._rev; // Remove rev to allow re-insert
+            await db.put(restored);
+          } catch (e) {
+            console.error("DB restore failed:", e);
+          }
+          return;
+        }
+        
+        const list = localSessionsRead();
+        const exists = list.some(x => x && x._id === doc._id);
+        if (!exists) {
+          list.push(doc);
+          localSessionsWrite(list);
+        }
+      }
+
+      async function deleteSessionWithUndo(doc) {
+        if (!doc) return;
+        enqueueUndoDelete(doc);
+        await deleteSessionNow(doc);
+      }
+
+      async function deleteSessionNow(doc) {
+        if (!doc) return;
+
+        if (db) {
+          if (!doc._id || !doc._rev) return;
+          await db.remove(doc);
+          return;
+        }
+
+        const list = localSessionsRead();
+        const next = list.filter(x => x && x._id !== doc._id);
+        localSessionsWrite(next);
+      }
+
+      // Clean up expired undo entries
+      setInterval(() => {
+        const now = Date.now();
+        let removed = 0;
+        for (let i = undoQueue.length - 1; i >= 0; i--) {
+          if (now - undoQueue[i].timestamp > UNDO_TTL_MS) {
+            undoQueue.splice(i, 1);
+            removed++;
+          }
+        }
+      }, 1000);
+
+      const HISTORY_PAGE_SIZE = 30;
+
+      let historyItems = [];
+      let historyCursorId = null;
+      let historyHasMore = true;
+
+      function historyResetPaging() {
+        historyItems = [];
+        historyCursorId = null;
+        historyHasMore = true;
+        if (el.sessionsMoreBtn) el.sessionsMoreBtn.disabled = true;
+      }
+
+      function historyUpdateMoreBtn() {
+        if (!el.sessionsMoreBtn) return;
+        el.sessionsMoreBtn.disabled = !historyHasMore;
+      }
+
+      async function loadSessionsPage(limit, cursorId) {
+        const want = Math.max(1, Math.min(5000, Number(limit) || HISTORY_PAGE_SIZE));
+
+        if (db) {
+          const res = await db.allDocs({
+            include_docs: true,
+            descending: true,
+            startkey: cursorId || "session:\uffff",
+            endkey: "session:",
+            skip: cursorId ? 1 : 0,
+            limit: want + 1
+          });
+
+          const docs = [];
+          for (const r of res.rows) {
+            const d = r.doc;
+            if (d && d.type === "session") docs.push(d);
+            if (docs.length >= want + 1) break;
+          }
+
+          const hasMore = docs.length > want;
+          const items = hasMore ? docs.slice(0, want) : docs;
+          const nextCursor = items.length ? items[items.length - 1]._id : (cursorId || null);
+
+          return { items, hasMore, nextCursor };
+        }
+
+        const all = localSessionsRead()
+          .filter(x => x && x.type === "session")
+          .sort((a, b) => (Number(b.startAtEpochMs || 0) - Number(a.startAtEpochMs || 0)));
+
+        let startIdx = 0;
+        if (cursorId) {
+          const i = all.findIndex(x => x && x._id === cursorId);
+          if (i >= 0) startIdx = i + 1;
+        }
+
+        const page = all.slice(startIdx, startIdx + want + 1);
+        const hasMore = page.length > want;
+        const items = hasMore ? page.slice(0, want) : page;
+        const nextCursor = items.length ? items[items.length - 1]._id : (cursorId || null);
+
+        return { items, hasMore, nextCursor };
+      }
+
+      async function loadSessionsSince(minEpochMs, limit = 2000) {
+        const minT = Number(minEpochMs);
+        const want = Math.max(1, Math.min(5000, Number(limit) || 2000));
+
+        if (!Number.isFinite(minT)) return await loadSessions(want);
+
+        if (db) {
+          const startkey = `session:${Date.now()}:\uffff`;
+          const endkey = `session:${Math.max(0, Math.floor(minT))}:`;
+
+          const res = await db.allDocs({
+            include_docs: true,
+            descending: true,
+            startkey,
+            endkey,
+            limit: want
+          });
+
+          const out = [];
+          for (const r of res.rows) {
+            const d = r.doc;
+            if (d && d.type === "session") out.push(d);
+          }
+          return out;
+        }
+
+        const all = localSessionsRead()
+          .filter(x => x && x.type === "session")
+          .filter(s => Number(s.startAtEpochMs || 0) >= minT)
+          .sort((a, b) => (Number(b.startAtEpochMs || 0) - Number(a.startAtEpochMs || 0)));
+
+        return all.slice(0, want);
+      }
+
+      async function refreshHistoryChartUI() {
+        try {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const minEpoch = today.getTime() - (13 * 24 * 60 * 60 * 1000);
+
+          const chartList = await loadSessionsSince(minEpoch, 2000);
+          state.historyChartList = chartList;
+          scheduleHistoryChartsRender();
+        } catch (e) {}
+      }
+
+      async function historyLoadMore() {
+        if (!historyHasMore) {
+          historyUpdateMoreBtn();
+          return;
+        }
+
+        if (el.sessionsMoreBtn) el.sessionsMoreBtn.disabled = true;
+
+        const page = await loadSessionsPage(HISTORY_PAGE_SIZE, historyCursorId);
+        const items = Array.isArray(page.items) ? page.items : [];
+
+        historyItems = historyItems.concat(items);
+        historyHasMore = !!page.hasMore;
+        historyCursorId = page.nextCursor || historyCursorId;
+
+        renderHistory(historyItems);
+        historyUpdateMoreBtn();
+      }
+
+
+      function renderLastSessionBox(doc) {
+        if (!doc) {
+          el.lastSessionBox.textContent = "No sessions yet.";
+          return;
+        }
+        const dt = new Date(doc.startAtEpochMs);
+        const inhaleSec = doc.inhaleSec;
+        const exhaleSec = doc.exhaleSec;
+        const bpm = (60 / (inhaleSec + exhaleSec)).toFixed(1);
+        const planned = doc.plannedMinutes && doc.plannedMinutes > 0 ? `${doc.plannedMinutes}m planned` : "unlimited";
+        const actual = Number.isFinite(doc.actualSeconds) ? `${Math.round(doc.actualSeconds)}s` : "--";
+        el.lastSessionBox.innerHTML =
+          `<div style="font-weight:950;color:rgba(255,255,255,0.94);">${dt.toLocaleString()}</div>
+             <div style="margin-top:6px;color:var(--muted);">
+               Pattern ${inhaleSec.toFixed(1)}/${exhaleSec.toFixed(1)} | BPM ${bpm} | ${planned} | ${actual}
+             </div>`;
+      }
+
+
+      function toLocalDayKey(epochMs) {
+        const d = new Date(epochMs);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function renderHistoryChart(list) {
+        const canvas = el.historyChart;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        state.historyChartList = Array.isArray(list) ? list : [];
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+        // Fit to CSS size
+        const rect = canvas.getBoundingClientRect();
+        const cssW = Math.max(200, Math.floor(rect.width || 640));
+        let cssH = Math.max(120, Math.floor(rect.height || 0));
+        // When the page is not visible yet, rect.height can be 0 -> fall back to computed CSS height
+        if (cssH < 150) {
+          const cs = getComputedStyle(canvas);
+          const h = parseFloat(cs.height || "0");
+          if (h) cssH = Math.max(120, Math.floor(h));
+          else cssH = 210;
+        }
+        canvas.width = Math.floor(cssW * dpr);
+        canvas.height = Math.floor(cssH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // Build last 14 days buckets
+        const buckets = new Map();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (let i = 13; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          buckets.set(toLocalDayKey(d.getTime()), { date: d, minutes: 0 });
+        }
+
+        if (Array.isArray(list)) {
+          list.forEach(s => {
+            if (!s || !Number.isFinite(s.startAtEpochMs) || !Number.isFinite(s.actualSeconds)) return;
+            const k = toLocalDayKey(s.startAtEpochMs);
+            const b = buckets.get(k);
+            if (!b) return;
+            b.minutes += Math.max(0, s.actualSeconds) / 60;
+          });
+        }
+
+        const days = Array.from(buckets.values());
+        const maxMin = Math.max(0, ...days.map(d => d.minutes));
+        const maxRounded = maxMin <= 0 ? 0 : Math.ceil(maxMin / 5) * 5;
+// Clear
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        // Styling
+        const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#19d3c5";
+        const grid = "rgba(255,255,255,0.08)";
+        const text = "rgba(255,255,255,0.55)";
+
+        // Padding tuned for mobile so labels are readable and not clipped
+        const padL = 46;
+        const padR = 10;
+        const padT = 14;
+        const padB = 34;
+
+        const plotW = cssW - padL - padR;
+        const plotH = cssH - padT - padB;
+
+        const scaleMax = maxRounded > 0 ? maxRounded : 1;
+
+
+        // Grid lines (0/50/100%)
+        ctx.strokeStyle = grid;
+        ctx.lineWidth = 1;
+        [0, 0.5, 1].forEach(frac => {
+          const y = padT + plotH * (1 - frac);
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(padL + plotW, y);
+          ctx.stroke();
+        });
+
+        // Y-axis labels (minutes)
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = text;
+        ctx.font = "13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        [1, 0.5, 0].forEach(frac => {
+          const y = padT + plotH * (1 - frac);
+          const val = Math.round(scaleMax * frac);
+          ctx.fillText(`${val}m`, padL - 8, y);
+        });
+
+        // Bars
+        const n = days.length;
+        const gap = 3;
+        const barW = Math.max(6, Math.floor((plotW - gap * (n - 1)) / n));
+
+        days.forEach((d, i) => {
+          const x = padL + i * (barW + gap);
+          const h = (d.minutes / scaleMax) * plotH;
+          const y = padT + (plotH - h);
+
+          // bar
+          ctx.fillStyle = accent;
+          ctx.globalAlpha = d.minutes > 0 ? 0.85 : 0.20;
+          ctx.fillRect(x, y, barW, h);
+
+          // X labels (day of month): fewer ticks on small screens
+          const showEvery = (cssW < 420) ? 3 : 2;
+          if (i % showEvery === showEvery - 1 || n <= 7) {
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = text;
+            ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "alphabetic";
+            const label = String(d.date.getDate());
+            ctx.fillText(label, x + barW / 2, cssH - 8);
+          }
+        });
+
+        ctx.globalAlpha = 1;
+      }
+
+      function renderHistory(list) {
+        el.sessions.innerHTML = "";
+        if (!list || list.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "tiny";
+          empty.textContent = "No sessions saved yet.";
+          el.sessions.appendChild(empty);
+          if (el.sessionsMoreBtn) el.sessionsMoreBtn.disabled = true;
+          return;
+        }
+
+        list.forEach((s) => {
+          const item = document.createElement("div");
+          item.className = "sessionItem";
+
+          const top = document.createElement("div");
+          top.className = "sessionTop";
+
+          const left = document.createElement("div");
+          const dt = new Date(s.startAtEpochMs);
+          const inhaleSec = s.inhaleSec;
+          const exhaleSec = s.exhaleSec;
+          const bpm = (60 / (inhaleSec + exhaleSec)).toFixed(1);
+
+          const title = document.createElement("div");
+          title.className = "sessionTitle";
+          title.textContent = dt.toLocaleString();
+
+          const meta = document.createElement("div");
+          meta.className = "sessionMeta";
+          const planned = s.plannedMinutes && s.plannedMinutes > 0 ? `${s.plannedMinutes}m planned` : "unlimited";
+          const actual = Number.isFinite(s.actualSeconds) ? `${Math.round(s.actualSeconds)}s actual` : "--";
+          meta.textContent = `Pattern ${inhaleSec.toFixed(1)}/${exhaleSec.toFixed(1)} | BPM ${bpm} | ${planned} | ${actual}`;
+
+          left.appendChild(title);
+          left.appendChild(meta);
+
+          const right = document.createElement("div");
+          right.className = "sessionActions";
+
+          const delBtn = document.createElement("button");
+          delBtn.className = "smallBtn subtle";
+          delBtn.textContent = "Delete";
+          delBtn.setAttribute("aria-label", "Delete session");
+          delBtn.style.background = "rgba(255,92,92,0.14)";
+          delBtn.style.border = "1px solid rgba(255,92,92,0.28)";
+          delBtn.addEventListener("click", async () => {
+            await deleteSessionWithUndo(s);
+            await refreshSessionsUI();
+          });
+
+          right.appendChild(delBtn);
+
+          top.appendChild(left);
+          top.appendChild(right);
+
+          item.appendChild(top);
+          el.sessions.appendChild(item);
+        });
+      }
+
+      async function refreshSessionsUI() {
+        try {
+          el.sessions.innerHTML = `<div class="tiny">Loading...</div>`;
+          historyResetPaging();
+
+          await refreshHistoryChartUI();
+          await historyLoadMore();
+
+          renderLastSessionBox(historyItems && historyItems.length ? historyItems[0] : null);
+        } catch (e) {
+          // Keep app usable if history fails for any reason
+          el.sessions.innerHTML = `<div class="tiny">History unavailable.</div>`;
+          if (el.sessionsMoreBtn) el.sessionsMoreBtn.disabled = true;
+          try { renderHistoryChart([]); } catch (e2) {}
+          renderLastSessionBox(null);
+        }
+      }
+
+
+      /* Export / Import */
+      function downloadJson(filename, obj) {
+        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      async function exportSessions() {
+        const list = await loadSessions(2000);
+        downloadJson("resobreathe_sessions.json", {
+          exportedAt: new Date().toISOString(),
+          version: 1,
+          sessions: list
+        });
+      }
+
+      async function importSessionsFromObject(payload) {
+        try {
+          if (!payload || typeof payload !== "object") throw new Error("Invalid JSON");
+
+          const sessions = Array.isArray(payload.sessions)
+            ? payload.sessions
+            : (Array.isArray(payload) ? payload : null);
+
+          if (!sessions) throw new Error("No sessions array");
+
+          const clean = sessions
+            .filter(x => {
+              if (!x) return false;
+              // allow missing type in case of older exports
+              const okStart = Number.isFinite(Number(x.startAtEpochMs)) && Number(x.startAtEpochMs) > 0;
+              const inhaleSec = Number(x.inhaleSec);
+              const exhaleSec = Number(x.exhaleSec);
+              if (!okStart || !Number.isFinite(inhaleSec) || !Number.isFinite(exhaleSec)) return false;
+              if (!(inhaleSec > 0) || !(exhaleSec > 0)) return false;
+              return true;
+            })
+            .map(x => {
+              const start = Number(x.startAtEpochMs);
+              const idOk = (typeof x._id === "string" && /^session:\d+:/i.test(x._id));
+              const sid = idOk ? x._id : `session:${start}:${Math.random().toString(16).slice(2)}`;
+
+              return {
+                ...x,
+                type: "session",
+                inhaleSec: Number(x.inhaleSec),
+                exhaleSec: Number(x.exhaleSec),
+                plannedTotalSec: Number.isFinite(Number(x.plannedTotalSec)) ? Number(x.plannedTotalSec) : 0,
+                actualSeconds: Number.isFinite(Number(x.actualSeconds)) ? Number(x.actualSeconds)
+                             : Number.isFinite(Number(x.durationSec)) ? Number(x.durationSec)
+                             : 0,
+                durationSec: Number.isFinite(Number(x.durationSec)) ? Number(x.durationSec)
+                           : Number.isFinite(Number(x.actualSeconds)) ? Number(x.actualSeconds)
+                           : 0,
+                _id: sid,
+                _rev: undefined, // important: allow import into empty/other DB without conflicts
+              };
+            });
+
+          if (db) {
+            // bulk import is faster and handles many docs
+            const res = await db.bulkDocs(clean);
+            const anyErr = Array.isArray(res) ? res.find(r => r && r.error) : null;
+            if (anyErr) {
+              console.warn("Import had errors (showing first):", anyErr);
+            }
+            return;
+          }
+
+          const existing = localSessionsRead();
+          const byId = new Map(existing.map(x => [x._id, x]));
+          for (const s of clean) byId.set(s._id, s);
+          const merged = Array.from(byId.values()).sort((a, b) => (b.startAtEpochMs || 0) - (a.startAtEpochMs || 0));
+          localSessionsWrite(merged);
+
+      return { imported: clean.length, skippedInvalid: sessions.length - clean.length };
+
+  } catch (e) {
+    console.error("Import failed (invalid export JSON):", e);
+    throw new Error("Invalid ResoBreathe export JSON" + (e && e.message ? (": " + e.message) : ""));
+  }
+}
+
+      el.exportBtn.addEventListener("click", async () => {
+        try {
+          await exportSessions();
+          toast("Export complete.", TOAST_DURATION);
+        } catch (e) {
+          toast("Export failed.", TOAST_DURATION);
+        }
+      });
+
+      el.importBtn.addEventListener("click", () => {
+        el.importFile.value = "";
+        // Some mobile/PWA builds refuse to open file picker for display:none inputs
+        if (el.importFile.showPicker) {
+          try { el.importFile.showPicker(); return; } catch(e) {}
+        }
+        el.importFile.click();
+      });
+
+      // Import guard flag (outside listener to prevent race conditions)
+      let importing = false;
+      
+      el.importFile.addEventListener("change", async () => {
+        const f = el.importFile.files && el.importFile.files[0];
+        if (!f) return;
+        
+        if (importing) return;
+        
+        importing = true;
+        try { if (el.importBtn) el.importBtn.disabled = true; } catch (e) {}
+        
+        try {
+          toast("Importing...", IMPORTING_TOAST_MS);
+          
+          // Give toast time to render
+          await new Promise((r) => requestAnimationFrame(() => r()));
+          
+          const text = await f.text();
+          
+          await new Promise((r) => requestAnimationFrame(() => r()));
+          
+          const obj = safeJsonParse(text, null);
+          const stats = await importSessionsFromObject(obj);
+          await refreshSessionsUI();
+          
+          const imported = stats && Number.isFinite(Number(stats.imported)) ? Number(stats.imported) : null;
+          const skippedInvalid = stats && Number.isFinite(Number(stats.skippedInvalid)) ? Number(stats.skippedInvalid) : null;
+          
+          if (imported != null && skippedInvalid != null) {
+            toast(`Imported ${imported}, skipped ${skippedInvalid} invalid.`, 5500);
+          } else {
+            toast("Import complete.", 3500);
+          }
+        } catch (e) {
+          console.error("Import failed:", e);
+          toast("Import failed. Check the JSON file format.", 5000);
+        } finally {
+          importing = false;
+          try { if (el.importBtn) el.importBtn.disabled = false; } catch (e) {}
+        }
+      });
+
+        /* Cookie-based Password Storage */
+        const COUCH_PASS_COOKIE_KEY = "resobreathe_couch_pass";
+        const COUCH_PASS_COOKIE_DAYS = 14;
+
+        function cookieSet(name, value, days) {
+          try {
+            const maxAge = Math.max(0, Math.floor(Number(days || 0) * 24 * 60 * 60));
+            const v = encodeURIComponent(String(value || ""));
+            const n = encodeURIComponent(String(name || ""));
+            const exp = new Date(Date.now() + (maxAge * 1000)).toUTCString();
+            let s = `${n}=${v}; Max-Age=${maxAge}; Expires=${exp}; Path=/; SameSite=Strict`;
+            if (location.protocol === "https:") s += "; Secure";
+            document.cookie = s;
+          } catch (e) {}
+        }
+
+        function cookieGet(name) {
+          try {
+            const n = encodeURIComponent(String(name || "")) + "=";
+            const parts = String(document.cookie || "").split(";");
+            for (const p of parts) {
+              const t = p.trim();
+              if (t.startsWith(n)) return decodeURIComponent(t.slice(n.length));
+            }
+          } catch (e) {}
+          return "";
+        }
+
+        function cookieDel(name) {
+          try {
+            const n = encodeURIComponent(String(name || ""));
+            let s = `${n}=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Strict`;
+            if (location.protocol === "https:") s += "; Secure";
+            document.cookie = s;
+          } catch (e) {}
+        }
+
+        function loadCouchPassCookie() {
+          try {
+            if (!settings.rememberPass) return;
+            const p = cookieGet(COUCH_PASS_COOKIE_KEY);
+            if (p) settings.couchPass = p;
+          } catch (e) {}
+        }
+
+        function saveCouchPassCookie(pass) {
+          try {
+            if (!settings.rememberPass) return;
+            const p = String(pass || "");
+            if (!p) { cookieDel(COUCH_PASS_COOKIE_KEY); return; }
+            cookieSet(COUCH_PASS_COOKIE_KEY, p, COUCH_PASS_COOKIE_DAYS);
+          } catch (e) {}
+        }
+
+        function clearCouchPassStored(clearCookieToo) {
+          if (clearCookieToo) cookieDel(COUCH_PASS_COOKIE_KEY);
+          settings.couchPass = "";
+        }
+
+        // Legacy migration: remove old localStorage/sessionStorage keys
+        try {
+          localStorage.removeItem("resobreathe_couch_pass_local_v1");
+          localStorage.removeItem("resobreathe_couch_pass");
+          sessionStorage.removeItem("resobreathe_couch_pass_session_v1");
+          sessionStorage.removeItem("resobreathe_couch_pass");
+        } catch (e) {}
+
+
+function validateRemoteUrl(serverUrl) {
+  const url = String(serverUrl || "").trim();
+  if (!url) return { ok: false, msg: "Server URL is empty" };
+
+  let u;
+  try { u = new URL(url); } catch (e) { return { ok: false, msg: "Invalid Server URL" }; }
+
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    return { ok: false, msg: "URL must start with http:// or https://" };
+  }
+
+  // Block mixed content when app is served over https
+  if (location.protocol === "https:" && u.protocol === "http:") {
+    return { ok: false, msg: "Blocked by browser: use https URL (mixed content)" };
+  }
+
+  return { ok: true, msg: "OK" };
+}
+
+function buildDbUrl(serverUrl, dbName) {
+  const base = String(serverUrl || "").trim().replace(/\/+$/, "");
+  const name = String(dbName || "").trim();
+  if (!base || !name) return "";
+  return `${base}/${encodeURIComponent(name)}`;
+}
+
+function buildDbUrlWithCreds(serverUrl, dbName, user, pass) {
+  try {
+    const base = String(serverUrl || "").trim().replace(/\/+$/, "");
+    const name = String(dbName || "").trim();
+    if (!base || !name || !user || !pass) return "";
+    const u = new URL(base);
+    // Force basic-auth in URL as a fallback (some iOS/PWA + proxy combos ignore auth option)
+    // URL object handles encoding automatically - do NOT double-encode
+    u.username = String(user);
+    u.password = String(pass);
+    u.pathname = u.pathname.replace(/\/+$/, "") + "/" + encodeURIComponent(name);
+    return u.toString();
+  } catch (e) {
+    return "";
+  }
+}
+
+function makeRemoteDb(dbUrl, user, pass) {
+  // Primary: use auth option (preferred, doesn't leak creds in URL)
+  return new window.PouchDB(dbUrl, {
+    skip_setup: true,
+    auth: { username: String(user || ""), password: String(pass || "") }
+  });
+}
+
+function makeRemoteDbCredUrl(dbUrlWithCreds) {
+  // Fallback: credentials embedded in URL
+  return new window.PouchDB(dbUrlWithCreds, { skip_setup: true });
+}
+
+function couchErrToText(err) {
+  if (!err) return "Unknown error";
+  const status = err.status != null ? String(err.status) : "";
+  const name = err.name ? String(err.name) : "";
+  const msg = err.message ? String(err.message) : "";
+  const reason = err.reason ? String(err.reason) : "";
+
+  const joined = [status, name, msg, reason].filter(Boolean).join(" | ");
+
+  // Common browser fetch failure (CORS, network, TLS, DNS)
+  if (!status && name === "TypeError" && /fetch/i.test(msg)) {
+    return "Failed to fetch (CORS/HTTPS/network)";
+  }
+  return joined || "Unknown error";
+}
+
+
+/* CouchDB sync */
+      let syncHandler = null;
+      let syncConnected = false;
+
+      let syncRetryMs = 800;
+      let syncRetryTimer = null;
+
+      function setSyncUI(ok, text) {
+        syncConnected = ok;
+        el.syncDot.classList.remove("dotOk", "dotBad");
+        el.syncDot.classList.add(ok ? "dotOk" : "dotBad");
+        el.syncText.textContent = text;
+        el.syncBtn.textContent = ok ? "Disconnect" : "Connect";
+        el.syncBtn.classList.toggle("active", ok);
+      }
+
+      function stopSync(clearStored, finalText) {
+        if (syncHandler) {
+          try { syncHandler.cancel(); } catch (e) {}
+          syncHandler = null;
+        }
+        if (syncRetryTimer) {
+          clearTimeout(syncRetryTimer);
+          syncRetryTimer = null;
+        }
+        syncConnected = false;
+        setSyncUI(false, finalText || "Disconnected");
+        syncRetryMs = 800;
+
+        if (clearStored) {
+          clearCouchPassStored(true);
+          if (el.rememberPass) el.rememberPass.checked = false;
+        } else {
+          // Always clear session copy on disconnect
+          clearCouchPassStored(false);
+          if (!settings.rememberPass) {
+            try { localStorage.removeItem(COUCH_PASS_LOCAL_KEY); } catch (e) {}
+          }
+        }
+      }
+
+      function scheduleSyncRetry() {
+        const wait = Math.min(30000, syncRetryMs);
+        syncRetryMs = Math.min(30000, Math.floor(syncRetryMs * 1.7));
+        setSyncUI(false, `Retrying in ${Math.round(wait / 1000)}s...`);
+
+        if (syncRetryTimer) {
+          clearTimeout(syncRetryTimer);
+          syncRetryTimer = null;
+        }
+
+        syncRetryTimer = setTimeout(() => {
+          syncRetryTimer = null;
+          if (!syncConnected && navigator.onLine) startSync();
+        }, wait);
+      }
+
+      
+async function startSync() {
+  // Hard fail-safe: never let sync code break the whole app
+  try {
+    if (!db) { setSyncUI(false, "No local DB"); return; }
+    if (typeof window.PouchDB === "undefined") { setSyncUI(false, "PouchDB missing"); return; }
+
+    const serverUrl = String(el.couchUrl.value || "").trim();
+    const dbName = String(el.couchDbName.value || "").trim();
+    const user = String(el.couchUser.value || "").trim();
+    const pass = String(((el.couchPass && el.couchPass.value) || settings.couchPass || ""));
+
+    const v = validateRemoteUrl(serverUrl);
+    if (!v.ok) { setSyncUI(false, v.msg); return; }
+
+    const dbUrl = buildDbUrl(serverUrl, dbName);
+
+    if (!serverUrl) { setSyncUI(false, "Server URL is empty"); return; }
+    if (!dbName) { setSyncUI(false, "Database name is empty"); return; }
+    if (!dbUrl) { setSyncUI(false, "Invalid URL"); return; }
+    if (!user || !pass) { setSyncUI(false, "Missing username/password"); return; }
+
+    // Persist settings (password is stored only in session unless "remember" enabled)
+    settings.couchUrl = serverUrl;
+    settings.couchDbName = dbName;
+    settings.couchUser = user;
+    settings.couchPass = pass;
+    if (settings.rememberPass) saveCouchPassCookie(pass);
+    else cookieDel(COUCH_PASS_COOKIE_KEY);
+    saveSettingsEverywhere(true);
+
+    // Cancel any existing handler without wiping stored password
+    if (syncHandler) {
+      try { syncHandler.cancel(); } catch (e) {}
+      syncHandler = null;
+    }
+    if (syncRetryTimer) {
+      clearTimeout(syncRetryTimer);
+      syncRetryTimer = null;
+    }
+    syncRetryMs = 800;
+
+    try {
+      let remote = makeRemoteDb(dbUrl, user, pass);
+      setSyncUI(true, "Testing connection...");
+
+      try {
+        await remote.info();
+      } catch (eInfo) {
+        const st = eInfo && eInfo.status;
+
+        // iOS/PWA/proxy fallback: try URL-embedded basic auth if auth option gets ignored
+        if (st === 401 || st === 403) {
+          const urlWithCreds = buildDbUrlWithCreds(serverUrl, dbName, user, pass);
+          if (urlWithCreds) {
+            try {
+              remote = makeRemoteDbCredUrl(urlWithCreds);
+              await remote.info();
+            } catch (e2) {
+              throw eInfo; // keep original
+            }
+          } else {
+            throw eInfo;
+          }
+        } else {
+          throw eInfo;
+        }
+      }
+
+      syncHandler = window.PouchDB.sync(db, remote, { live: true, retry: true });
+      window.syncHandler = syncHandler; // Register for cleanup
+
+      setSyncUI(true, "Connecting...");
+      syncHandler.on("change", () => setSyncUI(true, "Synced (live)"));
+      syncHandler.on("paused", () => setSyncUI(true, navigator.onLine ? "Synced (idle)" : "Offline (will retry)"));
+      syncHandler.on("active", () => setSyncUI(true, "Syncing..."));
+      syncHandler.on("denied", (err) => {
+        setSyncUI(false, "Sync denied (check username/password)");
+        el.status.textContent = "Sync stopped: credentials denied. Update your CouchDB password and reconnect.";
+        console.warn("Sync denied:", err);
+        stopSync(false, "Denied");
+      });
+
+      syncHandler.on("error", (err) => {
+        const status = err && err.status;
+        if (status === 401) { stopSync(false, "401 Unauthorized"); return; }
+        if (status === 403) { stopSync(false, `403 Forbidden: ${couchErrToText(err)}`); return; }
+
+        const t = couchErrToText(err);
+        stopSync(false, `Sync error: ${t} (will retry)`);
+        scheduleSyncRetry();
+      });
+    } catch (err) {
+      const status = err && err.status;
+      if (status === 401) { setSyncUI(false, "401 Unauthorized"); return; }
+      if (status === 403) { setSyncUI(false, "403 Forbidden: " + couchErrToText(err)); return; }
+      if (status === 404) { setSyncUI(false, "404 Not found"); return; }
+
+      const t = couchErrToText(err);
+      setSyncUI(false, `Failed: ${t}`);
+      // Retry only for likely transient errors
+      if (!status) scheduleSyncRetry();
+    }
+  } catch (e) {
+    // Catch everything (including ReferenceError) so UI stays usable
+    stopSync(false, `Sync error: ${couchErrToText(e)}`);
+  }
+}
+
+el.syncBtn.addEventListener("click", () => {
+        if (syncConnected) stopSync();
+        else startSync();
+      });
+
+      el.pwToggleBtn.addEventListener("click", () => {
+        el.couchPass.type = (el.couchPass.type === "password") ? "text" : "password";
+      });
+
+      // Remember password (robust: no flaky checkbox taps on Android/PWA)
+      function renderRememberPassUI2() {
+        if (!el.rememberPassState || !el.rememberPassBtn) return;
+        el.rememberPassState.textContent = settings.rememberPass ? "On" : "Off";
+        el.rememberPassBtn.classList.toggle("active", !!settings.rememberPass);
+      }
+
+      window.toggleRememberPass = function(ev){
+        try { if (ev) { ev.preventDefault(); ev.stopPropagation(); } } catch(e){}
+        const now = performance.now();
+        if (window.__rememberPassToggleLock && (now - window.__rememberPassToggleLock) < 180) return;
+        window.__rememberPassToggleLock = now;
+
+        settings.rememberPass = !settings.rememberPass;
+
+        // If enabling, persist whatever password is currently known
+        const currentPass = String(((el.couchPass && el.couchPass.value) || settings.couchPass || ""));
+        if (settings.rememberPass && currentPass) {
+          settings.couchPass = currentPass;
+          saveCouchPassCookie(currentPass);
+        }
+        // If disabling, remove stored cookie
+        if (!settings.rememberPass) {
+          cookieDel(COUCH_PASS_COOKIE_KEY);
+        }
+
+        renderRememberPassUI2();
+        saveSettingsEverywhere(true);
+      };
+
+      // Initial UI render
+      renderRememberPassUI2();
+
+      // Button click (pointerup is stable across mobile/desktop)
+      if (el.rememberPassBtn) {
+        el.rememberPassBtn.addEventListener("pointerup", (ev) => {
+          window.toggleRememberPass(ev);
+        });
+      }
+
+      // Forget stored password
+      window.forgetStoredPassword = function(ev){
+        try { if (ev) { ev.preventDefault(); ev.stopPropagation(); } } catch(e){}
+        // Clear local + session stored password
+        clearCouchPassStored(true);
+        // Clear UI field
+        if (el.couchPass) el.couchPass.value = "";
+        settings.rememberPass = false;
+        renderRememberPassUI2();
+        saveSettingsEverywhere(true);
+        setSyncUI(false, "Not connected");
+      };
+
+      if (el.forgetPassBtn) {
+        el.forgetPassBtn.addEventListener("pointerup", (ev) => {
+          window.forgetStoredPassword(ev);
+        });
+      }
+
+      window.addEventListener("online", () => {
+        loadCouchPassCookie();
+        setTimeout(() => {
+          if (!syncConnected && settings.couchUrl && settings.couchDbName && settings.couchUser && settings.couchPass) {
+            startSync();
+          } else {
+            if (!syncConnected) setSyncUI(false, "Not connected");
+          }
+        }, 30);
+      });
+      window.addEventListener("offline", () => {
+        if (syncConnected) setSyncUI(true, "Offline (will retry)");
+        else setSyncUI(false, "Offline");
+      });
+
+      
+      // Mobile/PWA: when app returns to foreground, attempt reconnect
+      function tryAutoReconnect(reason) {
+        try {
+          loadCouchPassCookie();
+          if (!navigator.onLine) {
+            if (!syncConnected) setSyncUI(false, "Offline");
+            return;
+          }
+          if (!syncConnected && settings.couchUrl && settings.couchDbName && settings.couchUser && settings.couchPass) {
+            // small delay so UI bindings settle
+            setTimeout(() => {
+              if (!syncConnected) startSync();
+            }, 50);
+          }
+        } catch (e) {}
+      }
+
+      window.addEventListener("pageshow", () => tryAutoReconnect("pageshow"));
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) tryAutoReconnect("visible");
+      });
+/* breathing logic */
+      function plannedTotalSec() {
+        const mins = clamp(parseFloat(el.sessionMinutes.value), 0, 999);
+        if (!Number.isFinite(mins) || mins <= 0) return 0;
+        return mins * 60;
+      }
+
+      function computePhaseAt(elapsedSec, inhaleSec, exhaleSec) {
+        const cycle = inhaleSec + exhaleSec;
+        const t = elapsedSec % cycle;
+        if (t < inhaleSec) {
+          return { name: "INHALE", label: "Inhale", phaseElapsed: t, phaseDur: inhaleSec };
+        }
+        return { name: "EXHALE", label: "Exhale", phaseElapsed: t - inhaleSec, phaseDur: exhaleSec };
+      }
+
+      function setCountdownUI(n, total) {
+        el.status.textContent = "";
+        el.cue.textContent = "Get Ready";
+        el.subCue.textContent = String(n);
+        const p = clamp((total - n) / total, 0, 1);
+        ringSetProgress01(p);
+      }
+
+
+      const state = {
+        running: false,
+        paused: false,
+        totalStartMs: 0,
+        pausedAtMs: 0,
+        pauseAccumMs: 0,
+        rafId: null,
+        currentPhaseName: null,        ticked2: false,
+        ticked1: false,
+
+        countingDown: false,
+        countdownStartMs: 0,
+        lastCountdownRemaining: null,
+
+        currentSession: null,
+      
+        workerElapsedSec: 0,
+};
+
+
+      // Smooth UI interpolation state (render at display refresh rate)
+      const animationState = {
+        phaseStartPerfMs: 0,
+        phaseDurMs: 0,
+        currentPhase: "",
+      };
+
+      function setRingSmoothMode(enabled) {
+        // When running with RAF interpolation, disable CSS transition to avoid lag/stutter.
+        // During countdown and idle, keep the original transition.
+        if (!el.progressCircle) return;
+        el.progressCircle.style.transition = enabled ? "none" : "stroke-dashoffset 90ms linear";
+      }
+
+      function getElapsedSec(now) {
+        return (now - state.totalStartMs - state.pauseAccumMs) / 1000;
+      }
+
+      function resetTickState() {
+        state.ticked2 = false;
+        state.ticked1 = false;
+      }
+
+      function updateButtons() {
+        el.startBtn.disabled = state.running;
+        el.pauseBtn.disabled = !state.running;
+        el.stopBtn.disabled = !state.running;
+        el.pauseBtn.textContent = state.paused ? "Resume" : "Pause";
+      }
+
+      function setReadyUI() {
+        el.status.textContent = "Ready";
+        el.cue.textContent = "Press Start";
+        el.subCue.textContent = "";
+        el.remainingLine.textContent = "--:--";
+        ringSetProgress01(0);
+        setRingSmoothMode(false);
+        animationState.phaseStartPerfMs = 0;
+        animationState.phaseDurMs = 0;
+        animationState.currentPhase = "";
+        state.currentPhaseName = null;
+      
+          state.workerElapsedSec = 0;
+}
+      // Web Worker timing (prevents RAF throttling drift in background / locked screen)
+      let timerWorker = null;
+
+      function ensureTimerWorker() {
+        if (timerWorker) return timerWorker;
+
+        timerWorker = new Worker("./timer.worker.js");
+        window.timerWorker = timerWorker; // Register for cleanup
+        timerWorker.onmessage = (ev) => {
+          const msg = ev?.data;
+          if (!msg || typeof msg !== "object") return;
+
+          if (msg.type === "phase") {
+            state.currentPhaseName = msg.name;
+            el.cue.textContent = msg.label;
+            el.subCue.textContent = "";
+            el.status.textContent = "Running";
+            phaseCue(msg.name);
+            resetTickState();
+
+            // Milestones for smooth UI interpolation (RAF)
+            animationState.currentPhase = String(msg.name || "");
+            animationState.phaseDurMs = Math.max(1, Number(msg.phaseDurSec || 0) * 1000);
+            // Base start (will be corrected on next progress event)
+            animationState.phaseStartPerfMs = performance.now();
+
+            // Enable smooth ring mode once worker is running
+            setRingSmoothMode(true);
+
+            return;
+          }
+
+          if (msg.type === "tick") {
+            tickCue();
+            return;
+          }
+
+          if (msg.type === "progress") {
+            state.workerElapsedSec = Number(msg.elapsedTotalSec || 0);
+
+            if (msg.remainingSec == null) {
+              // Unlimited session: show elapsed timer (count-up)
+              el.remainingLine.textContent = fmtTime(state.workerElapsedSec);
+            } else {
+              // Planned session: show remaining time only (no label)
+              el.remainingLine.textContent = fmtTime(msg.remainingSec);
+            }
+
+            // Re-sync phase start so RAF interpolation stays accurate even if messages are delayed.
+            const p01 = clamp(Number(msg.phaseProgress01 ?? 0), 0, 1);
+            if (animationState.phaseDurMs > 0) {
+              animationState.currentPhase = String(msg.phase || animationState.currentPhase || "");
+              animationState.phaseStartPerfMs = performance.now() - (p01 * animationState.phaseDurMs);
+            }
+
+            return;
+          }
+
+          if (msg.type === "complete") {
+            stop(true);
+            return;
+          }
+        };
+
+        return timerWorker;
+      }
+
+      function plannedTotalSec() {
+        const plannedMinutes = clamp(parseFloat(el.sessionMinutes.value), 0, 999);
+        return plannedMinutes > 0 ? plannedMinutes * 60 : 0;
+      }
+
+      function startWorkerTiming() {
+        const w = ensureTimerWorker();
+        const { inhale, exhale } = getInhaleExhale();
+        const plannedSec = plannedTotalSec();
+
+        w.postMessage({
+          cmd: "start",
+          inhaleSec: inhale,
+          exhaleSec: exhale,
+          plannedSec,
+          ticks: !!settings.countdownTicks,
+        });
+      }
+
+      // Helper to schedule RAF and register for cleanup
+      function scheduleRaf(fn) {
+        state.rafId = requestAnimationFrame(fn);
+        window.rafId = state.rafId;
+      }
+
+
+      function loop(now) {
+        if (!state.running) return;
+
+        // Allow pausing the UI loop (countdown + smooth ring)
+        if (state.paused) {
+          scheduleRaf(loop);
+          return;
+        }
+
+        // Countdown UI (main thread only)
+        if (state.countingDown) {
+          const total = clamp(Number(settings.startCountdownSec || 5), 1, 20);
+          const elapsed = (now - state.countdownStartMs) / 1000;
+          const remaining = Math.ceil(total - elapsed);
+
+          if (remaining > 0) {
+            setCountdownUI(remaining, total);
+
+            if (settings.sound && state.lastCountdownRemaining !== remaining) {
+              state.lastCountdownRemaining = remaining;
+              beep(CONST.COUNTDOWN_BEEP_FREQ, CONST.COUNTDOWN_BEEP_MS);
+            }
+
+            scheduleRaf(loop);
+            return;
+          }
+
+          // Countdown finished -> start worker timing
+          state.countingDown = false;
+          state.lastCountdownRemaining = null;
+          resetTickState();
+          el.subCue.textContent = "";
+          if (settings.sound) beep(CONST.START_BEEP_FREQ, CONST.START_BEEP_MS);
+
+          startWorkerTiming();
+          // Keep RAF alive for smooth rendering
+          scheduleRaf(loop);
+          return;
+        }
+
+        // Smooth ring interpolation (worker is the timing source, main thread is render source)
+        if (animationState.phaseDurMs > 0 && animationState.phaseStartPerfMs > 0) {
+          const elapsedMs = now - animationState.phaseStartPerfMs;
+          const p = clamp(elapsedMs / animationState.phaseDurMs, 0, 1);
+
+          if (animationState.currentPhase === "INHALE") ringSetProgress01(p);
+          else ringSetProgress01(1 - p);
+        }
+
+        scheduleRaf(loop);
+      }
+
+async function start() {
+        const ok = await unlockAudio();
+        if (!ok) {
+          el.status.textContent = "Sound blocked by browser";
+          el.headerHint.textContent = "Sound blocked";
+        }
+
+
+        if (settings.sound && settings.startCountdown) {
+          try {
+            const ctx = ensureAudio();
+            if (ctx && ctx.state === "suspended") await ctx.resume();
+          } catch (e) {}
+        }
+
+        state.running = true;
+        state.paused = false;
+        state.pauseAccumMs = 0;
+        state.totalStartMs = nowMs();
+
+        
+        state.workerElapsedSec = 0;
+updateButtons();
+
+        const { inhale, exhale } = getInhaleExhale();
+        const plannedMinutes = clamp(parseFloat(el.sessionMinutes.value), 0, 999);
+
+        state.currentSession = {
+          startAtEpochMs: nowEpochMs(),
+          inhaleSec: inhale,
+          exhaleSec: exhale,
+          plannedMinutes: plannedMinutes > 0 ? plannedMinutes : 0,
+          options: readSettingsSnapshot(),
+        };
+
+        await requestWakeLockIfEnabled();
+
+        state.currentPhaseName = null;
+        resetTickState();
+        // Countdown stays on main thread (UI only). Real timing runs in Web Worker.
+        if (settings.startCountdown) {
+          state.countingDown = true;
+          state.countdownStartMs = nowMs();
+          state.lastCountdownRemaining = null;
+
+          const total = clamp(Number(settings.startCountdownSec || 5), 1, 20);
+          setCountdownUI(total, total);
+
+          // Drive countdown only; after countdown, Worker takes over and RAF stops.
+          scheduleRaf(loop);
+          return;
+        }
+
+        state.countingDown = false;
+        state.lastCountdownRemaining = null;
+        resetTickState();
+        if (wakeLockHintTimeout) {
+          clearTimeout(wakeLockHintTimeout);
+          wakeLockHintTimeout = null;
+        }
+
+        startWorkerTiming();
+
+        // Start RAF loop for smooth ring interpolation
+        scheduleRaf(loop);
+}
+
+      function togglePause() {
+        if (!state.running) return;
+
+        state.paused = !state.paused;
+
+        // During countdown (before worker starts), pause only affects UI countdown loop.
+        if (!state.countingDown && timerWorker) {
+          timerWorker.postMessage({ cmd: state.paused ? "pause" : "resume" });
+        }
+
+        if (state.paused) {
+          el.status.textContent = "";
+          el.cue.textContent = "Paused";
+          el.subCue.textContent = "";
+        } else {
+          el.status.textContent = "Running";
+        }
+
+        updateButtons();
+      }
+
+async function stop(autoStop) {
+        if (!state.running) return;
+
+        state.running = false;
+        state.paused = false;
+
+        if (state.rafId) cancelAnimationFrame(state.rafId);
+
+        
+
+        try { if (timerWorker) timerWorker.postMessage({ cmd: "stop" }); } catch (e) {}
+el.status.textContent = autoStop ? "Completed" : "Stopped";
+        el.cue.textContent = "Press Start";
+        el.subCue.textContent = "";
+        el.remainingLine.textContent = "--:--";
+        ringSetProgress01(0);
+        setRingSmoothMode(false);
+        animationState.phaseStartPerfMs = 0;
+        animationState.phaseDurMs = 0;
+        animationState.currentPhase = "";
+
+        state.countingDown = false;
+
+        state.lastCountdownRemaining = null;
+        resetTickState();
+        if (wakeLockHintTimeout) {
+          clearTimeout(wakeLockHintTimeout);
+          wakeLockHintTimeout = null;
+        }
+
+
+        await releaseWakeLock();
+        updateButtons();
+
+        try {
+          const safeSeconds = Math.max(0, Number(state.workerElapsedSec || 0));
+
+          if (state.currentSession && safeSeconds >= 1.0) {
+            const cycleSec = state.currentSession.inhaleSec + state.currentSession.exhaleSec;
+            const cycles = cycleSec > 0 ? (safeSeconds / cycleSec) : 0;
+
+            const doc = {
+              ...state.currentSession,
+              endAtEpochMs: nowEpochMs(),
+              actualSeconds: safeSeconds,
+              approxCycles: cycles,
+              stoppedBy: autoStop ? "auto" : "user",
+            };
+
+            await saveSession(doc);
+            el.status.textContent = autoStop ? "Completed (saved)" : "Stopped (saved)";
+            // UI refresh can fail on some devices (canvas/layout). Do not mark save as failed if refresh fails.
+            try { await refreshSessionsUI(); } catch (e) {}
+          }
+        } catch (e) {
+          el.status.textContent = "Stopped (save failed)";
+        } finally {
+          state.currentSession = null;
+          state.currentPhaseName = null;
+        }
+      }
+
+      el.startBtn.addEventListener("click", () => { if (!state.running) start(); });
+      el.pauseBtn.addEventListener("click", () => togglePause());
+      el.stopBtn.addEventListener("click", () => stop(false));
+      // Custom settings drawer (inhale/exhale)
+      function openCustom() {
+        if (!el.customDrawer) return;
+        el.customDrawer.classList.remove("hidden");
+        el.customDrawer.setAttribute("aria-hidden", "false");
+      }
+      function closeCustom() {
+        if (!el.customDrawer) return;
+        el.customDrawer.classList.add("hidden");
+        el.customDrawer.setAttribute("aria-hidden", "true");
+      }
+      if (el.openCustomBtn) el.openCustomBtn.addEventListener("click", openCustom);
+      if (el.closeCustomBtn) el.closeCustomBtn.addEventListener("click", closeCustom);
+      if (el.customDrawer) {
+        el.customDrawer.addEventListener("click", (ev) => {
+          if (ev.target === el.customDrawer) closeCustom();
+        });
+      }
+      window.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") closeCustom();
+      });
+
+
+      /* input + change */
+      [el.inhale, el.exhale, el.sessionMinutes].forEach((x) => {
+        const handler = () => {
+          updateMeta();
+          saveSettingsEverywhere(false);
+          if (state.running) stop(false);
+        };
+        x.addEventListener("input", handler);
+        x.addEventListener("change", handler);
+      });
+
+      el.toggleSoundBtn.addEventListener("click", () => {
+        settings.sound = !settings.sound;
+        if (!settings.sound) el.headerHint.textContent = "";
+        applySettingsUI();
+        saveSettingsEverywhere(true);
+      });
+
+      el.toggleTicksBtn.addEventListener("click", () => {
+        settings.countdownTicks = !settings.countdownTicks;
+        applySettingsUI();
+        saveSettingsEverywhere(true);
+      });
+
+      el.toggleWakeBtn.addEventListener("click", () => {
+        if (!wakeSupported) return;
+        settings.wakeLock = !settings.wakeLock;
+        applySettingsUI();
+        saveSettingsEverywhere(true);
+        if (state.running) {
+          if (settings.wakeLock) requestWakeLockIfEnabled();
+          else releaseWakeLock();
+        }
+      });
+
+      el.toggleStartCountdownBtn.addEventListener("click", () => {
+        settings.startCountdown = !settings.startCountdown;
+        applySettingsUI();
+        saveSettingsEverywhere(true);
+      });
+
+      /* Tiny PWA offline support (single-file SW) */
+      
+            /* Tiny PWA offline support + update prompt (service worker) */
+      /* Automatic silent updates with toast notification */
+/* Tiny PWA offline support + automatic silent updates */
+
+      async function registerInlineServiceWorker() {
+        try {
+          if (!("serviceWorker" in navigator)) return;
+
+          const UPDATE_TOAST_FLAG = "resobreath_just_updated_v1";
+          const hadController = !!navigator.serviceWorker.controller;
+
+          // Show "Updated!" toast if we just updated
+          try {
+            if (localStorage.getItem(UPDATE_TOAST_FLAG) === "1") {
+              localStorage.removeItem(UPDATE_TOAST_FLAG);
+              setTimeout(() => {
+                toast("✓ App updated to latest version", 4000, { large: true });
+              }, 800);
+            }
+          } catch (e) { console.error(e); }
+
+          // Service Worker registration
+          // updateViaCache: "none" ensures fresh fetch of sw.js on every check
+          // Version control handled by CACHE_VERSION inside sw.js
+          const reg = await navigator.serviceWorker.register("./sw.js", {
+            scope: "./",
+            updateViaCache: "none"
+          }).catch(() => null);
+
+          if (!reg) return;
+
+          // Force check for SW updates shortly after page load.
+          if (navigator.onLine) {
+            setTimeout(async () => {
+              try {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (const r of regs) {
+                  try { await r.update(); } catch (e) { console.error(e); }
+                }
+              } catch (e) { console.error(e); }
+            }, 1000); // Reduced from 2000ms to 1000ms
+          }
+
+          // SIMPLE AUTO-UPDATE: No modal, no clicks needed
+          // Use atomic lock to prevent race conditions
+          let updateLock = false;
+          let reloadTimer = null;
+
+          function autoUpdate() {
+            // Atomic check-and-set to prevent concurrent updates
+            if (updateLock) return;
+            updateLock = true;
+
+            // SESSION-AWARE UPDATE: Don't interrupt active breathing sessions
+            if (typeof state !== 'undefined' && state && state.running) {
+              console.log('Update available but session active - showing overlay instead of auto-reload');
+              try {
+                showUpdateOverlay();
+              } catch (e) {
+                console.error('Failed to show update overlay:', e);
+              }
+              return;
+            }
+
+            const w = reg.waiting || reg.installing || null;
+            
+            // Send skip waiting message
+            if (w) {
+              try { w.postMessage({ type: "SKIP_WAITING" }); } catch (e) { console.error(e); }
+            }
+
+            // Set flag to show toast after reload
+            try { localStorage.setItem(UPDATE_TOAST_FLAG, "1"); } catch (e) { console.error(e); }
+
+            // Debounced reload to avoid multiple simultaneous reloads
+            if (reloadTimer) clearTimeout(reloadTimer);
+            reloadTimer = setTimeout(() => {
+              if (window.__swReloaded) return;
+              window.__swReloaded = true;
+              try { location.reload(true); } catch (e) { location.reload(); }
+            }, 1500);
+          }
+
+          // Update overlay control functions
+          function showUpdateOverlay() {
+            const overlay = document.getElementById('updateOverlay');
+            if (overlay) {
+              overlay.classList.add('show');
+            }
+          }
+
+          function hideUpdateOverlay() {
+            const overlay = document.getElementById('updateOverlay');
+            if (overlay) {
+              overlay.classList.remove('show');
+            }
+          }
+
+          function reloadForUpdate() {
+            try { localStorage.setItem(UPDATE_TOAST_FLAG, "1"); } catch (e) { console.error(e); }
+            hideUpdateOverlay();
+            if (window.__swReloaded) return;
+            window.__swReloaded = true;
+            try { location.reload(true); } catch (e) { location.reload(); }
+          }
+
+          // Setup update overlay button handlers
+          try {
+            const btnUpdateLater = document.getElementById('btnUpdateLater');
+            const btnUpdateReload = document.getElementById('btnUpdateReload');
+            
+            if (btnUpdateLater) {
+              btnUpdateLater.addEventListener('click', () => {
+                hideUpdateOverlay();
+                toast('Update postponed. Refresh when ready.', 4000);
+              });
+            }
+            
+            if (btnUpdateReload) {
+              btnUpdateReload.addEventListener('click', reloadForUpdate);
+            }
+          } catch (e) {
+            console.error('Failed to setup update overlay handlers:', e);
+          }
+
+          // Auto-update if SW is already waiting (only after first install)
+          if (reg.waiting && hadController) {
+            autoUpdate();
+          }
+
+          // Auto-update when new SW is detected
+          reg.addEventListener("updatefound", () => {
+            const nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener("statechange", () => {
+              if (nw.state === "installed" && hadController) {
+                autoUpdate();
+              }
+            });
+          });
+
+          // Backup: Listen for SW activation messages
+          navigator.serviceWorker.addEventListener("message", (event) => {
+            const msg = event && event.data ? event.data : null;
+            if (!msg || msg.type !== "SW_ACTIVATED") return;
+            if (updateLock && !window.__swReloaded) {
+              try { localStorage.setItem(UPDATE_TOAST_FLAG, "1"); } catch (e) { console.error(e); }
+              if (reloadTimer) clearTimeout(reloadTimer);
+              reloadTimer = setTimeout(() => {
+                window.__swReloaded = true;
+                try { location.reload(true); } catch (e) { location.reload(); }
+              }, 300);
+            }
+          });
+
+          // Check for updates on visibility change & online
+          const pingUpdate = () => { try { reg.update(); } catch (e) { console.error(e); } };
+          window.addEventListener("online", pingUpdate);
+          setInterval(() => { if (navigator.onLine) pingUpdate(); }, 5 * 60 * 1000);
+          document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && navigator.onLine) {
+              setTimeout(pingUpdate, 1000);
+            }
+          });
+        } catch (e) { console.error(e); }
+      }
+
+
+      /* ---------------- Event Listener Management & Cleanup ---------------- */
+      const managedListeners = [];
+
+      function addManagedListener(target, type, handler, opts) {
+        try {
+          target.addEventListener(type, handler, opts);
+          managedListeners.push({ target, type, handler, opts });
+        } catch (e) {
+          console.error('addManagedListener error:', e);
+        }
+      }
+
+      function cleanupOnUnload() {
+        
+        if (typeof timerWorker !== 'undefined' && timerWorker) {
+          try {
+            timerWorker.terminate();
+            timerWorker = null;
+          } catch (e) {
+            console.error('Timer cleanup error:', e);
+          }
+        }
+        
+        try {
+          if (typeof releaseWakeLock === 'function') releaseWakeLock();
+        } catch (e) {
+          console.error('Wake lock cleanup error:', e);
+        }
+        
+        if (typeof db !== 'undefined' && db) {
+          try {
+            db.close();
+            db = null;
+          } catch (e) {
+            console.error('DB cleanup error:', e);
+          }
+        }
+        
+        if (typeof syncHandler !== 'undefined' && syncHandler) {
+          try {
+            syncHandler.cancel();
+            syncHandler = null;
+          } catch (e) {
+            console.error('Sync cleanup error:', e);
+          }
+        }
+        
+        for (const { target, type, handler, opts } of managedListeners) {
+          try {
+            target.removeEventListener(type, handler, opts);
+          } catch (e) {
+            console.error('Listener cleanup error:', e);
+          }
+        }
+        managedListeners.length = 0;
+      }
+
+      window.addEventListener('beforeunload', cleanupOnUnload);
+
+      /* ---------------- Visibility Change Handler ---------------- */
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          
+          if (typeof syncHandler !== 'undefined' && syncHandler && syncHandler.cancel) {
+            try {
+              syncHandler.cancel();
+            } catch (e) {
+              console.error('Sync pause error:', e);
+            }
+          }
+          
+          if (typeof rafId !== 'undefined' && rafId) {
+            try {
+              cancelAnimationFrame(rafId);
+              rafId = 0;
+            } catch (e) {
+              console.error('RAF pause error:', e);
+            }
+          }
+        } else {
+          
+          if (typeof state !== 'undefined' && state && state.running && typeof rafId !== 'undefined' && !rafId) {
+            try {
+              if (typeof rafLoop === 'function') {
+                rafId = requestAnimationFrame(rafLoop);
+              }
+            } catch (e) {
+              console.error('RAF resume error:', e);
+            }
+          }
+          
+          if (typeof settings !== 'undefined' && settings && settings.couchUrl) {
+            try {
+              setTimeout(() => {
+                if (typeof startSync === 'function') {
+                  startSync();
+                }
+              }, 1000);
+            } catch (e) {
+              console.error('Sync resume error:', e);
+            }
+          }
+        }
+      });
+
+      /* ---------------- Online/Offline Indicator ---------------- */
+      function updateOnlineStatus() {
+        if (!el.offlineBanner) return;
+        
+        if (navigator.onLine) {
+          el.offlineBanner.classList.add('hidden');
+        } else {
+          el.offlineBanner.classList.remove('hidden');
+        }
+      }
+
+      addManagedListener(window, 'online', updateOnlineStatus);
+      addManagedListener(window, 'offline', updateOnlineStatus);
+
+
+async function boot() {
+        loadSettingsLocal();
+        loadCouchPassCookie();
+        applySettingsUI();
+        updateMeta();
+        ringSetProgress01(0);
+        updateButtons();
+        setReadyUI();
+
+        db = initDbIfAvailable();
+        window.db = db; // Register for cleanup
+
+        if (!db) {
+          el.status.textContent = "No DB (history in localStorage)";
+        } else {
+          try { await db.info(); } catch (e) { el.status.textContent = "DB error (fallback OK)"; }
+        }
+
+        await refreshSessionsUI();
+
+        setSyncUI(false, navigator.onLine ? "Not connected" : "Offline");
+        if (navigator.onLine && settings.couchUrl && settings.couchDbName && settings.couchUser && settings.couchPass) {
+          startSync();
+        }
+
+        registerInlineServiceWorker();
+        updateOnlineStatus();
+      }
+      boot().catch(() => {});
+    })();
+  </script>
+
+  <!-- Update available overlay -->
+  <div id="updateOverlay" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
+    <div id="updateCard">
+      <p id="updateTitle">Update available</p>
+      <p id="updateDesc">Refresh to load the new version. Your local data stays on this device.</p>
+      <div id="updateActions">
+        <div id="btnUpdateLater" class="btn">Later</div>
+        <div id="btnUpdateReload" class="btn">Refresh</div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>
