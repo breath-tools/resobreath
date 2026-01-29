@@ -2334,7 +2334,7 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
         // Y-axis labels (minutes)
         ctx.globalAlpha = 1;
         ctx.fillStyle = text;
-        ctx.font = "13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.font = "700 12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
         ctx.textAlign = "right";
         ctx.textBaseline = "middle";
         [1, 0.5, 0].forEach(frac => {
@@ -2363,7 +2363,7 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
           if (i % showEvery === showEvery - 1 || n <= 7) {
             ctx.globalAlpha = 1;
             ctx.fillStyle = text;
-            ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+            ctx.font = "700 11px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "alphabetic";
             const label = String(d.date.getDate());
