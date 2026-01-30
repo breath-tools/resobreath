@@ -2404,8 +2404,17 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
 
           const meta = document.createElement("div");
           meta.className = "sessionMeta";
-          const planned = s.plannedMinutes && s.plannedMinutes > 0 ? `${s.plannedMinutes}m planned` : "unlimited";
-          const actual = Number.isFinite(s.actualSeconds) ? `${Math.round(s.actualSeconds)}s actual` : "--";
+          const planned = s.plannedMinutes && s.plannedMinutes > 0 ? `${s.plannedMinutes}m planned` : "—";
+          
+          // Format actual time as mm:ss
+          let actual = "—";
+          if (Number.isFinite(s.actualSeconds)) {
+            const totalSec = Math.round(s.actualSeconds);
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            actual = `${mins}:${String(secs).padStart(2, '0')} actual`;
+          }
+          
           meta.textContent = `Pattern ${inhaleSec.toFixed(1)}/${exhaleSec.toFixed(1)} | BPM ${bpm} | ${planned} | ${actual}`;
 
           left.appendChild(title);
