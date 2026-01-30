@@ -1,6 +1,6 @@
-# ResoBreathe
+# ResoBreath
 
-ResoBreathe is a lightweight, fully customizable **resonance breathing** timer built as a **local-first**, privacy-friendly web app. It is designed to help users practice slow paced breathing (typically 4 to 6 breaths per minute) and track sessions over time.
+Resobreath is a lightweight, fully customizable **resonance breathing** timer built as a **local-first**, privacy-friendly web app. It is designed to help users practice slow paced breathing (typically 4 to 6 breaths per minute) and track sessions over time.
 
 ## Safety disclaimer
 
@@ -26,7 +26,7 @@ No account, no setup.
 
 ## Install (PWA)
 
-ResoBreathe is a **Progressive Web App**, meaning it can be installed on your device for offline use and a native feel.
+Resobreath is a **Progressive Web App**, meaning it can be installed on your device for offline use and a native feel.
 
 ### Android (Chrome)
 

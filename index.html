@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ResoBreathe</title>
+<title>Resobreath</title>
 <link href="./manifest.json" rel="manifest"/>
 <meta content="#19d3c5" name="theme-color"/>
 <style>
@@ -945,7 +945,7 @@ body.drawerOpen .header .burger { visibility: hidden; }
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
 <div class="drawerTop">
-<div class="drawerTitle">ResoBreathe</div>
+<div class="drawerTitle">Resobreath</div>
 <button class="smallBtn subtle" id="closeDrawerBtn">Close</button>
 </div>
 <div class="menuItem active" data-page="practice">
@@ -973,7 +973,7 @@ body.drawerOpen .header .burger { visibility: hidden; }
 <div class="shell" data-page="practice" id="shell">
 <div class="header">
 <div class="titleWrap">
-<div class="appName">ResoBreathe</div>
+<div class="appName">Resobreath</div>
 <div aria-hidden="true" class="headerHint" id="headerHint"></div>
 </div>
 <button aria-label="Menu" class="burger" id="burgerBtn">
@@ -1086,7 +1086,7 @@ body.drawerOpen .header .burger { visibility: hidden; }
 </div>
 <div>
 <label>Database name</label>
-<input id="couchDbName" placeholder="resobreathe" type="text"/>
+<input id="couchDbName" placeholder="Resobreath" type="text"/>
 </div>
 <div class="row twoCol">
 <div>
@@ -1152,7 +1152,7 @@ body.drawerOpen .header .burger { visibility: hidden; }
 </div>
 <div class="tiny" style="font-size:16px;color:rgba(255,255,255,0.92);line-height:1.75;">
 <p style="margin-top:0;">
-            ResoBreathe is a minimal resonant breathing practice app.
+            Resobreath is a minimal resonant breathing practice app.
           </p>
 <p style="margin:10px 0 0 0;color:rgba(255,255,255,0.92);">
             For more information, visit
@@ -1221,7 +1221,7 @@ body.drawerOpen .header .burger { visibility: hidden; }
         COUNTDOWN_BEEP_MS: 45,
       };
 
-      const SESSION_STORE_KEY = "resobreathe_sessions_local_v7";
+      const SESSION_STORE_KEY = "Resobreath_sessions_local_v7";
 
   const TOAST_DURATION = 3500;
   const IMPORTING_TOAST_MS = 4000;
@@ -1609,7 +1609,7 @@ el.closeDrawerBtn.addEventListener("click", closeDrawer);
 
       /* DB (late init after pouch loads) */
       let db = null;
-      const DB_NAME = "resobreathe_db_v7";
+      const DB_NAME = "Resobreath_db_v7";
 
       function initDbIfAvailable() {
         const hasPouch = typeof window.PouchDB !== "undefined";
@@ -1622,7 +1622,7 @@ el.closeDrawerBtn.addEventListener("click", closeDrawer);
       }
 
       /* settings */
-      const SETTINGS_KEY = "resobreathe_settings_v7";
+      const SETTINGS_KEY = "Resobreath_settings_v7";
       const settings = {
         sound: true,
         countdownTicks: false,
@@ -2469,7 +2469,7 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
 
       async function exportSessions() {
         const list = await loadSessions(2000);
-        downloadJson("resobreathe_sessions.json", {
+        downloadJson("Resobreath_sessions.json", {
           exportedAt: new Date().toISOString(),
           version: 1,
           sessions: list
@@ -2539,7 +2539,7 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
 
   } catch (e) {
     console.error("Import failed (invalid export JSON):", e);
-    throw new Error("Invalid ResoBreathe export JSON" + (e && e.message ? (": " + e.message) : ""));
+    throw new Error("Invalid Resobreath export JSON" + (e && e.message ? (": " + e.message) : ""));
   }
 }
 
@@ -2605,7 +2605,7 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
       });
 
         /* Cookie-based Password Storage */
-        const COUCH_PASS_COOKIE_KEY = "resobreathe_couch_pass";
+        const COUCH_PASS_COOKIE_KEY = "Resobreath_couch_pass";
         const COUCH_PASS_COOKIE_DAYS = 14;
 
         function cookieSet(name, value, days) {
@@ -2665,10 +2665,10 @@ el.ticksState.textContent = settings.countdownTicks ? "On" : "Off";
 
         // Legacy migration: remove old localStorage/sessionStorage keys
         try {
-          localStorage.removeItem("resobreathe_couch_pass_local_v1");
-          localStorage.removeItem("resobreathe_couch_pass");
-          sessionStorage.removeItem("resobreathe_couch_pass_session_v1");
-          sessionStorage.removeItem("resobreathe_couch_pass");
+          localStorage.removeItem("Resobreath_couch_pass_local_v1");
+          localStorage.removeItem("Resobreath_couch_pass");
+          sessionStorage.removeItem("Resobreath_couch_pass_session_v1");
+          sessionStorage.removeItem("Resobreath_couch_pass");
         } catch (e) {}
 
 

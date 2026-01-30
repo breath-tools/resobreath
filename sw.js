@@ -1,11 +1,11 @@
-/* ResoBreathe Service Worker (GPLv3)
+/* Resobreath Service Worker (GPLv3)
    Cache strategy:
    - Precache core app shell (index, manifest, worker)
    - Runtime cache same-origin GETs
    - Offline fallback for navigation to cached index.html
 */
 
-const CACHE_VERSION = 2; // Increment this on each deploy
+const CACHE_VERSION = 3; // Increment this on each deploy
 const CACHE = `resobreath_cache_v${CACHE_VERSION}`;
 
 // Core assets required for the app shell to boot offline.

@@ -1,6 +1,6 @@
 {
-  "name": "ResoBreathe",
-  "short_name": "ResoBreathe",
+  "name": "ResoBreath",
+  "short_name": "ResoBreath",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
