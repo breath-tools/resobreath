@@ -1,4 +1,4 @@
-/* ResoBreathe timer worker
+/* ResoBreath timer worker
    Master clock for breathing session timing (prevents UI thread RAF throttling drift).
    Messages:
      cmd:start { inhaleSec, exhaleSec, plannedSec, ticks }

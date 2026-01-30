@@ -1,6 +1,6 @@
 # ResoBreath
 
-Resobreath is a lightweight, fully customizable **resonance breathing** timer built as a **local-first**, privacy-friendly web app. It is designed to help users practice slow paced breathing (typically 4 to 6 breaths per minute) and track sessions over time.
+ResoBreath is a lightweight, fully customizable **resonance breathing** timer built as a **local-first**, privacy-friendly web app. It is designed to help users practice slow paced breathing (typically 4 to 6 breaths per minute) and track sessions over time.
 
 ## Safety disclaimer
 
@@ -18,7 +18,7 @@ This app is for general breathing practice and tracking. It is not medical advic
 
 Just open the web app:
 
-✅ https://breath-tools.github.io/resobreath/
+✅ https://breath-tools.github.io/ResoBreath/
 
 No account, no setup.
 
@@ -26,7 +26,7 @@ No account, no setup.
 
 ## Install (PWA)
 
-Resobreath is a **Progressive Web App**, meaning it can be installed on your device for offline use and a native feel.
+ResoBreath is a **Progressive Web App**, meaning it can be installed on your device for offline use and a native feel.
 
 ### Android (Chrome)
 
@@ -110,7 +110,7 @@ To enable multi-device sync, you need your own CouchDB instance with the followi
 
 2. **Create a user** (via admin panel or curl)
 
-3. **Create database** named `resobreath` (or your choice)
+3. **Create database** named `ResoBreath` (or your choice)
 
 4. **Set permissions**: Add your user to database members
 
