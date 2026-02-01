@@ -18,7 +18,7 @@ This app is for general breathing practice and tracking. It is not medical advic
 
 Just open the web app:
 
-✅ https://breath-tools.github.io/ResoBreath/
+✅ https://breath-tools.github.io/resobreath
 
 No account, no setup.
 
