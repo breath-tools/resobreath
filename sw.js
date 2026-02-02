@@ -5,7 +5,7 @@
    - Offline fallback for navigation to cached index.html
 */
 
-const CACHE_VERSION = 5; // Increment this on each deploy
+const CACHE_VERSION = 6; // Increment this on each deploy
 const CACHE = `ResoBreath_cache_v${CACHE_VERSION}`;
 
 // Core assets required for the app shell to boot offline.
